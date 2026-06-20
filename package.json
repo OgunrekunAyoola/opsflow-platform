@@ -17,10 +17,6 @@
   },
   "dependencies": {
     "@opsflow/contracts": "file:../opsflow-contracts",
-    "@opentelemetry/api": "^1.9.1",
-    "@opentelemetry/auto-instrumentations-node": "^0.76.0",
-    "@opentelemetry/exporter-trace-otlp-http": "^0.218.0",
-    "@opentelemetry/sdk-node": "^0.218.0",
     "pino": "^10.3.1",
     "prom-client": "^15.1.3"
   },
