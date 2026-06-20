@@ -18,3 +18,6 @@ export * from './shared/utils/encryption';
 export * from './secrets';
 export * from './models';
 export * from './data/repositories';
+export { getRedisClient, buildConnection, shouldUseMock } from './infra/redis';
+export { PIIMasker, piiMasker, PIIMaskingUnavailableError, localFallbackMask } from './pii/PIIMasker';
+export type { MaskResult } from './pii/PIIMasker';
