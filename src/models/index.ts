@@ -23,3 +23,17 @@ export { buildCustomerIdentitySchema, type ICustomerIdentity } from './CustomerI
 export { buildAgentVersionSchema, type IAgentVersion, type AgentVersionStatus } from './AgentVersion';
 export { buildSyncedObjectSchema, type ISyncedObject } from './SyncedObject';
 export { buildTicketReplySchema, type ITicketReply } from './TicketReply';
+export { buildThreadSchema, type IThread, type ThreadState, type ChannelType } from './Thread';
+export { buildNotificationSchema, type INotification, type NotificationType } from './Notification';
+export { buildProductCatalogSchema, type IProductCatalog, type IProductVariant, type ProductStatus } from './ProductCatalog';
+export { buildOrderSchema, type IOrder } from './Order';
+export { buildWorkflowRunSchema, type IWorkflowRun, type IWorkflowRunStep } from './WorkflowRun';
+export { buildShadowComparisonSchema, type IShadowComparison, type ShadowMetrics } from './ShadowComparison';
+export { buildWhatsAppTemplateSchema, type IWhatsAppTemplate, type TemplateStatus, type TemplateCategory } from './WhatsAppTemplate';
+export { buildAgentMemorySchema, type IAgentMemory } from './AgentMemory';
+export { buildEscalationHandoffSchema, type IEscalationHandoff, type EscalationUrgency } from './EscalationHandoff';
+export { buildConfigChangeLogSchema, type IConfigChangeLog, type ConfigChangeSource } from './ConfigChangeLog';
+export { buildAuditLogSchema, type IAuditLog, type AuditActor } from './AuditLog';
+export { buildIntegrationConnectionSchema, type IIntegrationConnection } from './IntegrationConnection';
+export { buildTenantSchema, type ITenant, type IWhatsAppConfig } from './Tenant';
+export { buildTicketSchema, type ITicket } from './Ticket';
