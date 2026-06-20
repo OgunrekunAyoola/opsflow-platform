@@ -11,4 +11,8 @@
 export { metrics, MetricsService } from './observability/MetricsService';
 export type { MetricName } from './observability/MetricsService';
 export { initTracing } from './observability/tracing';
+export { withNodeMetrics } from './observability/nodeMetrics';
+export { default as logger } from './shared/utils/logger';
+export * from './shared/utils/correlationContext';
+export * from './shared/utils/encryption';
 export * from './secrets';
