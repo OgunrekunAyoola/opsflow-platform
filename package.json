@@ -1,0 +1,43 @@
+{
+  "name": "@opsflow/platform",
+  "version": "0.1.0",
+  "description": "OpsFlow Data plane SDK — repositories, models, LLM gateway, event bus, PII, metrics, secrets, tools SDK. Depends on @opsflow/contracts.",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@opsflow/contracts": "file:../opsflow-contracts",
+    "@opentelemetry/auto-instrumentations-node": "^0.76.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.218.0",
+    "@opentelemetry/sdk-node": "^0.218.0",
+    "prom-client": "^15.1.3"
+  },
+  "peerDependencies": {
+    "mongoose": "^8.6.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.2.3",
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.10",
+    "typescript": "^5.9.3"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/opsflow/opsflow-platform.git"
+  }
+}
