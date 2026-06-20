@@ -17,3 +17,4 @@ export * from './shared/utils/correlationContext';
 export * from './shared/utils/encryption';
 export * from './secrets';
 export * from './models';
+export * from './data/repositories';
