@@ -16,3 +16,4 @@ export { default as logger } from './shared/utils/logger';
 export * from './shared/utils/correlationContext';
 export * from './shared/utils/encryption';
 export * from './secrets';
+export * from './models';
