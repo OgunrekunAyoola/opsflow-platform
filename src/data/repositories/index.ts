@@ -32,3 +32,4 @@ export { ThreadRepository } from './ThreadRepository';
 export { TicketReplyRepository } from './TicketReplyRepository';
 export { VectorDocRepository } from './VectorDocRepository';
 export { TicketRepository } from './TicketRepository';
+export { NotificationRepository, type PushNotifier } from './NotificationRepository';

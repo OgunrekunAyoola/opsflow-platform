@@ -21,3 +21,5 @@ export * from './data/repositories';
 export { getRedisClient, buildConnection, shouldUseMock } from './infra/redis';
 export { PIIMasker, piiMasker, PIIMaskingUnavailableError, localFallbackMask } from './pii/PIIMasker';
 export type { MaskResult } from './pii/PIIMasker';
+export { PushService } from './infra/PushService';
+export type { PushMessage, DeviceTokenLookup } from './infra/PushService';
