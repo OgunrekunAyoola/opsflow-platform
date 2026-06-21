@@ -20,7 +20,9 @@ export class TicketRepository extends BaseRepository<ITicket> {
   }
 
   async resolve(tenantId: string, ticketId: string): Promise<ITicket | null> {
-    return this.updateById(tenantId, ticketId, { $set: { status: 'auto_resolved', slaResolvedAt: new Date() } });
+    return this.updateById(tenantId, ticketId, {
+      $set: { status: 'auto_resolved', slaResolvedAt: new Date() },
+    });
   }
 
   async findBreached(tenantId: string): Promise<ITicket[]> {
@@ -80,7 +82,12 @@ export class TicketRepository extends BaseRepository<ITicket> {
   /** Cross-tenant sweep for the SLA monitor worker. Deliberately unscoped. */
   async findSLABreachCandidatesAllTenants(): Promise<ITicket[]> {
     return (this.model as any)
-      .find({ status: { $nin: ['closed', 'auto_resolved'] }, slaStartedAt: { $exists: true }, slaBreached: false, deletedAt: null })
+      .find({
+        status: { $nin: ['closed', 'auto_resolved'] },
+        slaStartedAt: { $exists: true },
+        slaBreached: false,
+        deletedAt: null,
+      })
       .populate('slaPolicy')
       .lean()
       .exec() as Promise<ITicket[]>;

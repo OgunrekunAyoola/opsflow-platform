@@ -21,7 +21,14 @@ export function buildLlmCallLogSchema(m: typeof import('mongoose')) {
       ticketId: { type: Schema.Types.ObjectId, ref: 'Ticket', index: true },
       task: {
         type: String,
-        enum: ['classification', 'answer_generation', 'self_eval', 'summary', 'memory_extraction', 'tool_use'],
+        enum: [
+          'classification',
+          'answer_generation',
+          'self_eval',
+          'summary',
+          'memory_extraction',
+          'tool_use',
+        ],
         required: true,
         index: true,
       },

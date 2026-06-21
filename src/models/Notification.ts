@@ -1,9 +1,18 @@
 import type { Document, Types } from 'mongoose';
 
 export type NotificationType =
-  | 'ticket_assigned' | 'high_priority_ticket' | 'sla_warning' | 'auto_reply_sent'
-  | 'team_member_joined' | 'sla_breach' | 'sla_approaching_breach' | 'ticket_reopened'
-  | 'mention' | 'ticket_escalated' | 'escalation_handoff' | 'handback_request';
+  | 'ticket_assigned'
+  | 'high_priority_ticket'
+  | 'sla_warning'
+  | 'auto_reply_sent'
+  | 'team_member_joined'
+  | 'sla_breach'
+  | 'sla_approaching_breach'
+  | 'ticket_reopened'
+  | 'mention'
+  | 'ticket_escalated'
+  | 'escalation_handoff'
+  | 'handback_request';
 
 export interface INotification extends Document {
   deletedAt?: Date | null;
@@ -27,9 +36,18 @@ export function buildNotificationSchema(m: typeof import('mongoose')) {
       type: {
         type: String,
         enum: [
-          'ticket_assigned', 'high_priority_ticket', 'sla_warning', 'auto_reply_sent',
-          'team_member_joined', 'sla_breach', 'sla_approaching_breach', 'ticket_reopened',
-          'mention', 'ticket_escalated', 'escalation_handoff', 'handback_request',
+          'ticket_assigned',
+          'high_priority_ticket',
+          'sla_warning',
+          'auto_reply_sent',
+          'team_member_joined',
+          'sla_breach',
+          'sla_approaching_breach',
+          'ticket_reopened',
+          'mention',
+          'ticket_escalated',
+          'escalation_handoff',
+          'handback_request',
         ],
         required: true,
         index: true,

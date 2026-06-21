@@ -14,11 +14,13 @@ export class MessageQuotaRepository extends BaseRepository<IMessageQuota> {
     dateKey: string,
     field: 'utilityCount' | 'marketingCount',
   ): Promise<IMessageQuota> {
-    return (this.model as any).findOneAndUpdate(
-      { tenantId: this.toObjectId(tenantId), canonicalCustomerId, channel, dateKey },
-      { $inc: { [field]: 1 } },
-      { upsert: true, new: true },
-    ).lean() as Promise<IMessageQuota>;
+    return (this.model as any)
+      .findOneAndUpdate(
+        { tenantId: this.toObjectId(tenantId), canonicalCustomerId, channel, dateKey },
+        { $inc: { [field]: 1 } },
+        { upsert: true, new: true },
+      )
+      .lean() as Promise<IMessageQuota>;
   }
 
   async decrementDailyCount(

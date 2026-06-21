@@ -14,27 +14,43 @@ export class TenantRepository extends BaseRepository<ITenant> {
     try {
       let q = (this.model as any).findOne({ _id: this.toObjectId(id), deletedAt: null });
       if (select) q = q.select(select);
-      return await q.lean() as ITenant | null;
+      return (await q.lean()) as ITenant | null;
     } finally {
-      metrics.observe('db_query_duration_ms', Date.now() - start, { collection: 'tenants', operation: 'findTenantById', tenant_id: id });
+      metrics.observe('db_query_duration_ms', Date.now() - start, {
+        collection: 'tenants',
+        operation: 'findTenantById',
+        tenant_id: id,
+      });
     }
   }
 
   async findByInboundAddress(address: string): Promise<ITenant | null> {
     const start = Date.now();
     try {
-      return await (this.model as any).findOne({ inboundAddress: address, deletedAt: null }).lean() as ITenant | null;
+      return (await (this.model as any)
+        .findOne({ inboundAddress: address, deletedAt: null })
+        .lean()) as ITenant | null;
     } finally {
-      metrics.observe('db_query_duration_ms', Date.now() - start, { collection: 'tenants', operation: 'findByInboundAddress', tenant_id: 'unknown' });
+      metrics.observe('db_query_duration_ms', Date.now() - start, {
+        collection: 'tenants',
+        operation: 'findByInboundAddress',
+        tenant_id: 'unknown',
+      });
     }
   }
 
   async findByApiKey(apiKey: string): Promise<ITenant | null> {
     const start = Date.now();
     try {
-      return await (this.model as any).findOne({ ingestApiKey: apiKey, deletedAt: null }).lean() as ITenant | null;
+      return (await (this.model as any)
+        .findOne({ ingestApiKey: apiKey, deletedAt: null })
+        .lean()) as ITenant | null;
     } finally {
-      metrics.observe('db_query_duration_ms', Date.now() - start, { collection: 'tenants', operation: 'findByApiKey', tenant_id: 'unknown' });
+      metrics.observe('db_query_duration_ms', Date.now() - start, {
+        collection: 'tenants',
+        operation: 'findByApiKey',
+        tenant_id: 'unknown',
+      });
     }
   }
 
@@ -46,14 +62,20 @@ export class TenantRepository extends BaseRepository<ITenant> {
   override async findOne(_tenantId: string, filter: FilterQuery<ITenant>): Promise<ITenant | null> {
     const start = Date.now();
     try {
-      return await (this.model as any).findOne({ ...filter, deletedAt: null }).lean() as ITenant | null;
+      return (await (this.model as any).findOne({ ...filter, deletedAt: null }).lean()) as ITenant | null;
     } finally {
-      metrics.observe('db_query_duration_ms', Date.now() - start, { collection: 'tenants', operation: 'findOne', tenant_id: 'unknown' });
+      metrics.observe('db_query_duration_ms', Date.now() - start, {
+        collection: 'tenants',
+        operation: 'findOne',
+        tenant_id: 'unknown',
+      });
     }
   }
 
   async findAllActive(): Promise<Array<{ _id: string }>> {
-    return (this.model as any).find({ deletedAt: null }).select('_id').lean() as Promise<Array<{ _id: string }>>;
+    return (this.model as any).find({ deletedAt: null }).select('_id').lean() as Promise<
+      Array<{ _id: string }>
+    >;
   }
 
   async incrementTicketsUsed(id: string): Promise<void> {

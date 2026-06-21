@@ -9,11 +9,11 @@ export class AiCorrectionRepository extends BaseRepository<IAiCorrection> {
 
   /** Latest correction for one ticket (the final human answer wins). */
   async findLatestByTicket(tenantId: string, ticketId: string): Promise<IAiCorrection | null> {
-    const docs = await (this.model as any)
+    const docs = (await (this.model as any)
       .find({ tenantId: this.toObjectId(tenantId), ticketId })
       .sort({ createdAt: -1 })
       .limit(1)
-      .lean() as IAiCorrection[];
+      .lean()) as IAiCorrection[];
     return docs[0] ?? null;
   }
 

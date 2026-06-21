@@ -60,7 +60,10 @@ export abstract class BaseRepository<T> implements IRepository<T> {
         tenant_id: tenantId,
       });
       if (ms > 100) {
-        logger.warn({ event: 'slow_query', collection: this.collectionName, operation, durationMs: ms }, 'Slow DB query');
+        logger.warn(
+          { event: 'slow_query', collection: this.collectionName, operation, durationMs: ms },
+          'Slow DB query',
+        );
       }
     }
   }
@@ -68,20 +71,29 @@ export abstract class BaseRepository<T> implements IRepository<T> {
   // ── IRepository implementation ───────────────────────────────────────────────
 
   async findById(tenantId: string, id: string): Promise<T | null> {
-    return this.timed('findById', tenantId, () =>
-      (this.model as any).findOne(this.baseFilter(tenantId, { _id: this.toObjectId(id) })).lean() as Promise<T | null>,
+    return this.timed(
+      'findById',
+      tenantId,
+      () =>
+        (this.model as any)
+          .findOne(this.baseFilter(tenantId, { _id: this.toObjectId(id) }))
+          .lean() as Promise<T | null>,
     );
   }
 
   async find(tenantId: string, filter: FilterQuery<T> = {}): Promise<T[]> {
-    return this.timed('find', tenantId, () =>
-      (this.model as any).find(this.baseFilter(tenantId, filter)).lean() as Promise<T[]>,
+    return this.timed(
+      'find',
+      tenantId,
+      () => (this.model as any).find(this.baseFilter(tenantId, filter)).lean() as Promise<T[]>,
     );
   }
 
   async findOne(tenantId: string, filter: FilterQuery<T>): Promise<T | null> {
-    return this.timed('findOne', tenantId, () =>
-      (this.model as any).findOne(this.baseFilter(tenantId, filter)).lean() as Promise<T | null>,
+    return this.timed(
+      'findOne',
+      tenantId,
+      () => (this.model as any).findOne(this.baseFilter(tenantId, filter)).lean() as Promise<T | null>,
     );
   }
 
@@ -96,28 +108,30 @@ export abstract class BaseRepository<T> implements IRepository<T> {
   }
 
   async updateById(tenantId: string, id: string, update: UpdateQuery<T>): Promise<T | null> {
-    return this.timed('updateById', tenantId, () =>
-      (this.model as any).findOneAndUpdate(
-        this.baseFilter(tenantId, { _id: this.toObjectId(id) }),
-        update,
-        { new: true, lean: true },
-      ) as Promise<T | null>,
+    return this.timed(
+      'updateById',
+      tenantId,
+      () =>
+        (this.model as any).findOneAndUpdate(
+          this.baseFilter(tenantId, { _id: this.toObjectId(id) }),
+          update,
+          { new: true, lean: true },
+        ) as Promise<T | null>,
     );
   }
 
   async deleteById(tenantId: string, id: string): Promise<boolean> {
     if (this.softDelete) {
-      const result = await this.timed('softDelete', tenantId, () =>
-        (this.model as any).updateOne(
-          this.baseFilter(tenantId, { _id: this.toObjectId(id) }),
-          { $set: { deletedAt: new Date() } },
-        ),
-      ) as { modifiedCount: number };
+      const result = (await this.timed('softDelete', tenantId, () =>
+        (this.model as any).updateOne(this.baseFilter(tenantId, { _id: this.toObjectId(id) }), {
+          $set: { deletedAt: new Date() },
+        }),
+      )) as { modifiedCount: number };
       return result.modifiedCount > 0;
     }
-    const result = await this.timed('deleteById', tenantId, () =>
+    const result = (await this.timed('deleteById', tenantId, () =>
       (this.model as any).deleteOne(this.baseFilter(tenantId, { _id: this.toObjectId(id) })),
-    ) as { deletedCount: number };
+    )) as { deletedCount: number };
     return result.deletedCount > 0;
   }
 
@@ -144,8 +158,10 @@ export abstract class BaseRepository<T> implements IRepository<T> {
   }
 
   async count(tenantId: string, filter: FilterQuery<T> = {}): Promise<number> {
-    return this.timed('count', tenantId, () =>
-      this.model.countDocuments(this.baseFilter(tenantId, filter)) as Promise<number>,
+    return this.timed(
+      'count',
+      tenantId,
+      () => this.model.countDocuments(this.baseFilter(tenantId, filter)) as Promise<number>,
     );
   }
 }

@@ -36,7 +36,12 @@ export class AgentVersionRepository extends BaseRepository<IAgentVersion> {
 
   async retireOthers(tenantId: string, agentId: string, exceptVersionId: string): Promise<void> {
     await (this.model as any).updateMany(
-      { tenantId: this.toObjectId(tenantId), agentId, versionId: { $ne: exceptVersionId }, status: { $ne: 'retired' } },
+      {
+        tenantId: this.toObjectId(tenantId),
+        agentId,
+        versionId: { $ne: exceptVersionId },
+        status: { $ne: 'retired' },
+      },
       { $set: { status: 'retired', trafficPercent: 0 } },
     );
   }
@@ -50,6 +55,8 @@ export class AgentVersionRepository extends BaseRepository<IAgentVersion> {
     versionId: string,
     status: AgentVersionStatus,
   ): Promise<IAgentVersion | null> {
-    return (this.model as any).findOne({ agentId, versionId, status }).lean() as Promise<IAgentVersion | null>;
+    return (this.model as any)
+      .findOne({ agentId, versionId, status })
+      .lean() as Promise<IAgentVersion | null>;
   }
 }

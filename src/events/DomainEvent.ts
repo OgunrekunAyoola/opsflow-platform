@@ -11,11 +11,7 @@ export type { DomainEvent, DomainEventName, EventHandler, SubscriberOptions } fr
 
 export interface IEventBus {
   emit<T>(event: DomainEvent<T>): Promise<void>;
-  subscribe<T>(
-    eventName: DomainEventName,
-    handler: EventHandler<T>,
-    options: SubscriberOptions,
-  ): void;
+  subscribe<T>(eventName: DomainEventName, handler: EventHandler<T>, options: SubscriberOptions): void;
   /** Dispatch an event to all registered subscribers (called by BullMQ worker). */
   dispatch<T>(event: DomainEvent<T>): Promise<void>;
 }
@@ -30,11 +26,11 @@ export function makeDomainEvent<T>(
   correlationId?: string,
 ): DomainEvent<T> {
   return {
-    eventId:      randomUUID(),
+    eventId: randomUUID(),
     eventName,
     tenantId,
     partitionKey,
-    occurredAt:   new Date(),
+    occurredAt: new Date(),
     correlationId: correlationId ?? randomUUID(),
     payload,
   };

@@ -34,7 +34,11 @@ export class VectorDocRepository extends BaseRepository<IVectorDoc> {
       },
       {
         $project: {
-          _id: 0, sourceId: 1, sourceType: 1, content: 1, metadata: 1,
+          _id: 0,
+          sourceId: 1,
+          sourceType: 1,
+          content: 1,
+          metadata: 1,
           score: { $meta: 'vectorSearchScore' },
         },
       },

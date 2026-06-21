@@ -15,8 +15,15 @@ export interface ITicket extends Document {
   messageId?: string;
   channel: 'email' | 'web_form' | 'integration' | 'whatsapp';
   status:
-    | 'new' | 'triaged' | 'awaiting_reply' | 'replied' | 'waiting_on_customer'
-    | 'closed' | 'auto_resolved' | 'resolved' | 'triaging';
+    | 'new'
+    | 'triaged'
+    | 'awaiting_reply'
+    | 'replied'
+    | 'waiting_on_customer'
+    | 'closed'
+    | 'auto_resolved'
+    | 'resolved'
+    | 'triaging';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   category: string;
   customerName?: string;

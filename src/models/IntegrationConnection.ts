@@ -13,7 +13,10 @@ function decField(v?: string): string | undefined {
     return decrypt(v);
   } catch (err: any) {
     // Fail-closed: never expose ciphertext or fall back to plaintext.
-    logger.warn({ event: 'integration_token_decrypt_failed', err: err?.message }, 'IntegrationConnection token decrypt failed — re-auth required');
+    logger.warn(
+      { event: 'integration_token_decrypt_failed', err: err?.message },
+      'IntegrationConnection token decrypt failed — re-auth required',
+    );
     return undefined;
   }
 }

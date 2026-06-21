@@ -2,28 +2,28 @@ import type { Document } from 'mongoose';
 import type { DomainEventName } from '@opsflow/contracts';
 
 export interface IDomainEventLog extends Document {
-  eventId:       string;
-  eventName:     DomainEventName;
-  tenantId:      string;
-  partitionKey:  string;
-  occurredAt:    Date;
+  eventId: string;
+  eventName: DomainEventName;
+  tenantId: string;
+  partitionKey: string;
+  occurredAt: Date;
   correlationId: string;
-  payload:       unknown;
-  enqueuedAt?:   Date;
+  payload: unknown;
+  enqueuedAt?: Date;
 }
 
 export function buildDomainEventLogSchema(m: typeof import('mongoose')) {
   const { Schema } = m;
   const DomainEventLogSchema = new Schema<IDomainEventLog>(
     {
-      eventId:       { type: String, required: true, unique: true, index: true },
-      eventName:     { type: String, required: true, index: true },
-      tenantId:      { type: String, required: true, index: true },
-      partitionKey:  { type: String, required: true },
-      occurredAt:    { type: Date, required: true },
+      eventId: { type: String, required: true, unique: true, index: true },
+      eventName: { type: String, required: true, index: true },
+      tenantId: { type: String, required: true, index: true },
+      partitionKey: { type: String, required: true },
+      occurredAt: { type: Date, required: true },
       correlationId: { type: String, required: true },
-      payload:       { type: Schema.Types.Mixed, required: true },
-      enqueuedAt:    { type: Date },
+      payload: { type: Schema.Types.Mixed, required: true },
+      enqueuedAt: { type: Date },
     },
     { timestamps: false },
   );

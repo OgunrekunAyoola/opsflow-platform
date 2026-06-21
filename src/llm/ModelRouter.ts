@@ -3,7 +3,13 @@ import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 // No dotenv.config() here — platform is a library; the host loads env at boot
 // (monolith index.ts: `import 'dotenv/config'`). Reads process.env at call time.
 
-type TaskType = 'classification' | 'answer_generation' | 'self_eval' | 'tool_use' | 'summary' | 'memory_extraction';
+type TaskType =
+  | 'classification'
+  | 'answer_generation'
+  | 'self_eval'
+  | 'tool_use'
+  | 'summary'
+  | 'memory_extraction';
 
 interface ModelConfig {
   id: string;
@@ -53,6 +59,8 @@ export class ModelRouter {
       });
     }
 
-    throw new Error(`ModelRouter.getModel() does not serve provider "${cfg.provider}" — use AnthropicProvider directly`);
+    throw new Error(
+      `ModelRouter.getModel() does not serve provider "${cfg.provider}" — use AnthropicProvider directly`,
+    );
   }
 }

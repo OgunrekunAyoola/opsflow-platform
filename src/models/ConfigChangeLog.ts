@@ -16,13 +16,13 @@ export function buildConfigChangeLogSchema(m: typeof import('mongoose')) {
   const { Schema } = m;
   const ConfigChangeLogSchema = new Schema<IConfigChangeLog>(
     {
-      tenantId:  { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
+      tenantId: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
       changedBy: { type: String, required: true },
       changedAt: { type: Date, default: Date.now, immutable: true },
       configKey: { type: String, required: true },
-      oldValue:  { type: Schema.Types.Mixed },
-      newValue:  { type: Schema.Types.Mixed },
-      source:    { type: String, enum: ['dashboard', 'api', 'migration'], required: true },
+      oldValue: { type: Schema.Types.Mixed },
+      newValue: { type: Schema.Types.Mixed },
+      source: { type: String, enum: ['dashboard', 'api', 'migration'], required: true },
     },
     { timestamps: false },
   );

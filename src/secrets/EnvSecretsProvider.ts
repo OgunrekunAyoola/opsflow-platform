@@ -1,4 +1,4 @@
-import type { SecretsProvider} from './SecretsProvider';
+import type { SecretsProvider } from './SecretsProvider';
 import { SecretNotFoundError } from './SecretsProvider';
 
 // Env-var name conventions (in priority order):
@@ -17,13 +17,17 @@ function buildEnvKey(scope: string, key: string): string {
   return `OPSFLOW_${toEnvSegment(scope)}_${toEnvSegment(key)}`;
 }
 
-interface CacheEntry { value: string; expiresAt: number; }
+interface CacheEntry {
+  value: string;
+  expiresAt: number;
+}
 
 export class EnvSecretsProvider implements SecretsProvider {
   private readonly cache = new Map<string, CacheEntry>();
   private readonly ttlMs: number;
 
-  constructor(ttlMs = 5 * 60 * 1000) { // 5-minute TTL default
+  constructor(ttlMs = 5 * 60 * 1000) {
+    // 5-minute TTL default
     this.ttlMs = ttlMs;
   }
 
@@ -40,8 +44,8 @@ export class EnvSecretsProvider implements SecretsProvider {
 
     // Resolution order: scoped env var → plain key name → null
     const scoped = process.env[buildEnvKey(scope, key)];
-    const plain  = process.env[key] ?? process.env[toEnvSegment(key)];
-    const value  = scoped ?? plain ?? null;
+    const plain = process.env[key] ?? process.env[toEnvSegment(key)];
+    const value = scoped ?? plain ?? null;
 
     if (value !== null) {
       this.cache.set(cacheKey, { value, expiresAt: Date.now() + this.ttlMs });

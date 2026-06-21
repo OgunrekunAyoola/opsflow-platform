@@ -18,15 +18,15 @@ export function buildCustomerIdentitySchema(m: typeof import('mongoose')) {
   const { Schema } = m;
   const CustomerIdentitySchema = new Schema<ICustomerIdentity>(
     {
-      tenantId:    { type: Schema.Types.ObjectId, ref: 'Tenant', required: true, index: true },
+      tenantId: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true, index: true },
       canonicalId: { type: String, required: true, index: true },
-      email:       { type: String, sparse: true },
-      phone:       { type: String, sparse: true },
-      name:        { type: String },
-      mergedIds:   { type: [String], default: [] },
-      totalTickets:{ type: Number, default: 0 },
+      email: { type: String, sparse: true },
+      phone: { type: String, sparse: true },
+      name: { type: String },
+      mergedIds: { type: [String], default: [] },
+      totalTickets: { type: Number, default: 0 },
       firstSeenAt: { type: Date, required: true },
-      lastSeenAt:  { type: Date, required: true },
+      lastSeenAt: { type: Date, required: true },
     },
     { timestamps: true },
   );

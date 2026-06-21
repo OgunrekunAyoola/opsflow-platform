@@ -19,16 +19,16 @@ export function buildAgentMemorySchema(m: typeof import('mongoose')) {
   const { Schema } = m;
   const AgentMemorySchema = new Schema<IAgentMemory>(
     {
-      tenantId:            { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
+      tenantId: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true },
       canonicalCustomerId: { type: String, required: true },
-      keyFacts:            { type: [String], default: [] },
-      preferredChannel:    { type: String },
-      preferredTone:       { type: String },
-      resolvedCategories:  { type: [String], default: [] },
-      openIssues:          { type: [String], default: [] },
-      totalInteractions:   { type: Number, default: 0 },
-      lastUpdatedAt:       { type: Date, default: Date.now },
-      expiresAt:           { type: Date },
+      keyFacts: { type: [String], default: [] },
+      preferredChannel: { type: String },
+      preferredTone: { type: String },
+      resolvedCategories: { type: [String], default: [] },
+      openIssues: { type: [String], default: [] },
+      totalInteractions: { type: Number, default: 0 },
+      lastUpdatedAt: { type: Date, default: Date.now },
+      expiresAt: { type: Date },
     },
     { timestamps: true },
   );

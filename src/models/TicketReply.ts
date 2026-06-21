@@ -29,7 +29,10 @@ export function buildTicketReplySchema(m: typeof import('mongoose')) {
       body: { type: String, required: true },
       isInternalNote: { type: Boolean, default: false },
       type: { type: String, enum: ['public_reply', 'internal_note'], default: 'public_reply' },
-      deliveryStatus: { type: String, enum: ['queued', 'sent', 'delivered', 'bounced', 'complained', 'failed'] },
+      deliveryStatus: {
+        type: String,
+        enum: ['queued', 'sent', 'delivered', 'bounced', 'complained', 'failed'],
+      },
       deliveredAt: { type: Date },
       deliveryProvider: { type: String },
       providerMessageId: { type: String, index: true },

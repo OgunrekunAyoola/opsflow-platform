@@ -13,7 +13,12 @@ export { buildVectorDocSchema, type IVectorDoc } from './VectorDoc';
 export { buildCostLedgerSchema, type ICostLedger } from './CostLedger';
 export { buildKBArticleSchema, type IKBArticle } from './KBArticle';
 export { buildSLAPolicySchema, type ISLAPolicy } from './SLAPolicy';
-export { buildMessageQuotaSchema, type IMessageQuota, DAILY_UTILITY_LIMIT, DAILY_MARKETING_LIMIT } from './MessageQuota';
+export {
+  buildMessageQuotaSchema,
+  type IMessageQuota,
+  DAILY_UTILITY_LIMIT,
+  DAILY_MARKETING_LIMIT,
+} from './MessageQuota';
 export { buildResolvedTicketSnippetSchema, type IResolvedTicketSnippet } from './ResolvedTicketSnippet';
 export { buildAiCorrectionSchema, type IAiCorrection } from './AiCorrection';
 export { buildLlmCallLogSchema, type ILlmCallLog } from './LlmCallLog';
@@ -25,14 +30,32 @@ export { buildSyncedObjectSchema, type ISyncedObject } from './SyncedObject';
 export { buildTicketReplySchema, type ITicketReply } from './TicketReply';
 export { buildThreadSchema, type IThread, type ThreadState, type ChannelType } from './Thread';
 export { buildNotificationSchema, type INotification, type NotificationType } from './Notification';
-export { buildProductCatalogSchema, type IProductCatalog, type IProductVariant, type ProductStatus } from './ProductCatalog';
+export {
+  buildProductCatalogSchema,
+  type IProductCatalog,
+  type IProductVariant,
+  type ProductStatus,
+} from './ProductCatalog';
 export { buildOrderSchema, type IOrder } from './Order';
 export { buildWorkflowRunSchema, type IWorkflowRun, type IWorkflowRunStep } from './WorkflowRun';
 export { buildShadowComparisonSchema, type IShadowComparison, type ShadowMetrics } from './ShadowComparison';
-export { buildWhatsAppTemplateSchema, type IWhatsAppTemplate, type TemplateStatus, type TemplateCategory } from './WhatsAppTemplate';
+export {
+  buildWhatsAppTemplateSchema,
+  type IWhatsAppTemplate,
+  type TemplateStatus,
+  type TemplateCategory,
+} from './WhatsAppTemplate';
 export { buildAgentMemorySchema, type IAgentMemory } from './AgentMemory';
-export { buildEscalationHandoffSchema, type IEscalationHandoff, type EscalationUrgency } from './EscalationHandoff';
-export { buildConfigChangeLogSchema, type IConfigChangeLog, type ConfigChangeSource } from './ConfigChangeLog';
+export {
+  buildEscalationHandoffSchema,
+  type IEscalationHandoff,
+  type EscalationUrgency,
+} from './EscalationHandoff';
+export {
+  buildConfigChangeLogSchema,
+  type IConfigChangeLog,
+  type ConfigChangeSource,
+} from './ConfigChangeLog';
 export { buildAuditLogSchema, type IAuditLog, type AuditActor } from './AuditLog';
 export { buildIntegrationConnectionSchema, type IIntegrationConnection } from './IntegrationConnection';
 export { buildTenantSchema, type ITenant, type IWhatsAppConfig } from './Tenant';

@@ -2,10 +2,10 @@
 // Scope syntax mirrors IAM resource naming — structured for future RBAC enforcement.
 
 export type SecretScope =
-  | 'global'                                      // shared across all tenants and agents
-  | `agent:${string}`                             // per-agent (e.g. agent:TriageAgent)
-  | `tenant:${string}`                            // per-tenant enterprise BYOK
-  | `agent:${string}:tenant:${string}`;           // per-agent-per-tenant (most privileged)
+  | 'global' // shared across all tenants and agents
+  | `agent:${string}` // per-agent (e.g. agent:TriageAgent)
+  | `tenant:${string}` // per-tenant enterprise BYOK
+  | `agent:${string}:tenant:${string}`; // per-agent-per-tenant (most privileged)
 
 export interface SecretsProvider {
   /** Returns the secret value. Throws `SecretNotFoundError` if missing. */

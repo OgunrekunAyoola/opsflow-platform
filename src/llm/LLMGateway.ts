@@ -16,12 +16,12 @@ import { makeDomainEvent as defaultMakeDomainEvent } from '../events/DomainEvent
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 export type LLMTask =
-  | 'classification'    // Gemini Flash — triage, thread classification
-  | 'self_eval'         // Gemini Flash — quality scoring
-  | 'summary'           // Gemini Flash — thread summary generation
+  | 'classification' // Gemini Flash — triage, thread classification
+  | 'self_eval' // Gemini Flash — quality scoring
+  | 'summary' // Gemini Flash — thread summary generation
   | 'answer_generation' // Claude Sonnet — draft response
   | 'memory_extraction' // Claude Sonnet — fact extraction
-  | 'tool_use';         // Claude Sonnet — multi-turn tool use loop
+  | 'tool_use'; // Claude Sonnet — multi-turn tool use loop
 
 export interface LLMRequest {
   task: LLMTask;
@@ -126,21 +126,30 @@ const noopCostTracker: CostTracker = {
 // ── Error types ────────────────────────────────────────────────────────────────
 
 export class LLMGatewayError extends Error {
-  constructor(message: string, public readonly cause?: Error) {
+  constructor(
+    message: string,
+    public readonly cause?: Error,
+  ) {
     super(message);
     this.name = 'LLMGatewayError';
   }
 }
 
 export class RateLimitedError extends Error {
-  constructor(public readonly agentId: string, public readonly tenantId: string) {
+  constructor(
+    public readonly agentId: string,
+    public readonly tenantId: string,
+  ) {
     super(`Rate limit exceeded for agent ${agentId} on tenant ${tenantId}`);
     this.name = 'RateLimitedError';
   }
 }
 
 export class ProviderUnavailableError extends Error {
-  constructor(public readonly provider: string, public readonly model: string) {
+  constructor(
+    public readonly provider: string,
+    public readonly model: string,
+  ) {
     super(`Provider ${provider}/${model} is unavailable (circuit open)`);
     this.name = 'ProviderUnavailableError';
   }
@@ -160,7 +169,10 @@ export class ContextWindowExceededError extends Error {
 }
 
 export class EmptyResponseError extends Error {
-  constructor(public readonly provider: string, public readonly task: string) {
+  constructor(
+    public readonly provider: string,
+    public readonly task: string,
+  ) {
     super(`Provider ${provider} returned an empty response for task ${task}`);
     this.name = 'EmptyResponseError';
   }
@@ -173,12 +185,12 @@ const CACHEABLE_TASKS = new Set<LLMTask>(['classification', 'summary']);
 
 /** ADR-027 provider routing table. */
 const TASK_PROVIDER: Record<LLMTask, 'anthropic' | 'gemini'> = {
-  classification:    'gemini',
-  self_eval:         'gemini',
-  summary:           'gemini',
+  classification: 'gemini',
+  self_eval: 'gemini',
+  summary: 'gemini',
   answer_generation: 'anthropic',
   memory_extraction: 'anthropic',
-  tool_use:          'anthropic',
+  tool_use: 'anthropic',
 };
 
 /**
@@ -186,15 +198,15 @@ const TASK_PROVIDER: Record<LLMTask, 'anthropic' | 'gemini'> = {
  * ModelRouter can't handle directly (tool_use, memory_extraction → answer_generation).
  */
 const FAILOVER_TASK_MAP: Partial<Record<LLMTask, LLMTask>> = {
-  tool_use:          'answer_generation',
+  tool_use: 'answer_generation',
   memory_extraction: 'answer_generation',
 };
 
-const DEDUP_TTL_S          = 30;
-const RATE_LIMIT_MAX       = 30;   // requests per 60-second window
-const RATE_LIMIT_WINDOW_S  = 60;
-const CIRCUIT_THRESHOLD    = 5;    // consecutive failures before opening
-const CIRCUIT_OPEN_MS      = 30_000; // 30 s open window
+const DEDUP_TTL_S = 30;
+const RATE_LIMIT_MAX = 30; // requests per 60-second window
+const RATE_LIMIT_WINDOW_S = 60;
+const CIRCUIT_THRESHOLD = 5; // consecutive failures before opening
+const CIRCUIT_OPEN_MS = 30_000; // 30 s open window
 
 /**
  * ADR-075 — context window limits per model.
@@ -202,13 +214,13 @@ const CIRCUIT_OPEN_MS      = 30_000; // 30 s open window
  * by a prompt that already fills the window.
  */
 const CONTEXT_WINDOW_TOKENS: Record<string, number> = {
-  'claude-sonnet-4-6':       200_000,
-  'claude-opus-4-7':         200_000,
+  'claude-sonnet-4-6': 200_000,
+  'claude-opus-4-7': 200_000,
   'claude-haiku-4-5-20251001': 200_000,
-  'gemini-2.5-flash':        1_048_576,
-  'gemini-2.5-pro':          1_048_576,
-  'gemini-1.5-flash':        1_048_576,
-  'gemini-1.5-pro':          2_097_152,
+  'gemini-2.5-flash': 1_048_576,
+  'gemini-2.5-pro': 1_048_576,
+  'gemini-1.5-flash': 1_048_576,
+  'gemini-1.5-pro': 2_097_152,
 };
 const OUTPUT_BUDGET_TOKENS = 4_096; // matches max_tokens in both providers
 
@@ -223,9 +235,7 @@ type RawLLMResponse = Omit<LLMResponse, 'provider' | 'latencyMs' | 'degraded' | 
  * Handles markdown code block wrapping (```json...``` or ```...```) and raw JSON.
  */
 export function parseJSONFromLLMText<T = unknown>(text: string): T {
-  const fenced =
-    text.match(/```json\s*([\s\S]*?)\s*```/) ||
-    text.match(/```\s*([\s\S]*?)\s*```/);
+  const fenced = text.match(/```json\s*([\s\S]*?)\s*```/) || text.match(/```\s*([\s\S]*?)\s*```/);
   return JSON.parse(fenced ? fenced[1] : text.trim()) as T;
 }
 
@@ -250,19 +260,24 @@ export class LLMGateway {
   private readonly _makeDomainEvent: typeof defaultMakeDomainEvent;
   private readonly _getCorrelation: () => { correlationId?: string };
 
-  constructor(anthropic?: AnthropicProvider, gemini?: GeminiProvider, redis?: Redis | null, deps: LLMGatewayDeps = {}) {
+  constructor(
+    anthropic?: AnthropicProvider,
+    gemini?: GeminiProvider,
+    redis?: Redis | null,
+    deps: LLMGatewayDeps = {},
+  ) {
     this._injectedAnthropic = anthropic;
-    this._injectedGemini    = gemini;
+    this._injectedGemini = gemini;
     if (redis !== undefined) this._redis = redis;
 
     this._anthropicFactory = deps.anthropicFactory ?? ((apiKey: string) => new AnthropicProvider(apiKey));
-    this._geminiFactory    = deps.geminiFactory    ?? (() => new GeminiProvider());
-    this._metrics          = deps.metrics          ?? defaultMetrics;
-    this._secrets          = deps.secrets          ?? defaultSecrets;
-    this._eventBus         = deps.eventBus         ?? noopEventBus;
-    this._costTracker      = deps.costTracker      ?? noopCostTracker;
-    this._makeDomainEvent  = deps.makeDomainEvent  ?? defaultMakeDomainEvent;
-    this._getCorrelation   = deps.getCorrelation   ?? defaultGetCorrelation;
+    this._geminiFactory = deps.geminiFactory ?? (() => new GeminiProvider());
+    this._metrics = deps.metrics ?? defaultMetrics;
+    this._secrets = deps.secrets ?? defaultSecrets;
+    this._eventBus = deps.eventBus ?? noopEventBus;
+    this._costTracker = deps.costTracker ?? noopCostTracker;
+    this._makeDomainEvent = deps.makeDomainEvent ?? defaultMakeDomainEvent;
+    this._getCorrelation = deps.getCorrelation ?? defaultGetCorrelation;
   }
 
   private get gemini(): GeminiProvider {
@@ -288,8 +303,8 @@ export class LLMGateway {
 
   private async _complete(req: LLMRequest): Promise<LLMResponse> {
     const requestId = randomUUID();
-    const startMs   = Date.now();
-    const meta      = { tenantId: req.tenantId, ticketId: req.ticketId };
+    const startMs = Date.now();
+    const meta = { tenantId: req.tenantId, ticketId: req.ticketId };
 
     // Step 4: dedup cache check (cacheable tasks only)
     if (req.dedupKey && CACHEABLE_TASKS.has(req.task)) {
@@ -318,7 +333,9 @@ export class LLMGateway {
     let effectiveReq = req;
     if (primaryProvider === 'anthropic' && process.env.LLM_FORCE_PROVIDER === 'gemini') {
       if (process.env.NODE_ENV === 'production') {
-        logger.error('[LLMGateway] LLM_FORCE_PROVIDER=gemini is set in PRODUCTION — ignored. Measurement mode only; unset this variable.');
+        logger.error(
+          '[LLMGateway] LLM_FORCE_PROVIDER=gemini is set in PRODUCTION — ignored. Measurement mode only; unset this variable.',
+        );
       } else {
         primaryProvider = 'gemini';
         effectiveReq = { ...req, task: FAILOVER_TASK_MAP[req.task] ?? req.task };
@@ -333,7 +350,9 @@ export class LLMGateway {
     // in production (env-sniffing class E1).
     if (primaryProvider === 'gemini' && process.env.LLM_FORCE_PROVIDER === 'anthropic') {
       if (process.env.NODE_ENV === 'production') {
-        logger.error('[LLMGateway] LLM_FORCE_PROVIDER=anthropic is set in PRODUCTION — ignored. Single-provider/measurement mode only; unset this variable.');
+        logger.error(
+          '[LLMGateway] LLM_FORCE_PROVIDER=anthropic is set in PRODUCTION — ignored. Single-provider/measurement mode only; unset this variable.',
+        );
       } else {
         primaryProvider = 'anthropic';
       }
@@ -350,13 +369,19 @@ export class LLMGateway {
     let degraded: boolean;
 
     try {
-      ({ raw, usedProvider, degraded } = await this._executeWithFailover(effectiveReq, meta, primaryProvider));
+      ({ raw, usedProvider, degraded } = await this._executeWithFailover(
+        effectiveReq,
+        meta,
+        primaryProvider,
+      ));
     } catch (err: any) {
       const latencyMs = Date.now() - startMs;
-      logger.warn(`[LLMGateway] Call failed — task=${req.task} agent=${req.agentId} latency=${latencyMs}ms error=${err.message}`);
+      logger.warn(
+        `[LLMGateway] Call failed — task=${req.task} agent=${req.agentId} latency=${latencyMs}ms error=${err.message}`,
+      );
       this._metrics.increment('agent_error_total', {
-        agent_id:   req.agentId,
-        tenant_id:  req.tenantId,
+        agent_id: req.agentId,
+        tenant_id: req.tenantId,
         error_type: err.constructor?.name ?? 'Error',
       });
       throw err;
@@ -392,25 +417,29 @@ export class LLMGateway {
 
     // Emit LLMCallCompleted — the subscriber writes the durable cost ledger (the
     // single ledger writer; providers no longer record cost — audit N-36).
-    this._eventBus.emit(this._makeDomainEvent(
-      'LLMCallCompleted',
-      req.tenantId,
-      req.ticketId ?? req.tenantId,
-      {
-        tenantId:         req.tenantId,
-        ticketId:         req.ticketId,
-        agentId:          req.agentId,
-        task:             req.task,
-        provider:         usedProvider,
-        model:            raw.model,
-        latencyMs,
-        promptTokens:     raw.usage.promptTokens,
-        completionTokens: raw.usage.completionTokens,
-        totalCostUsd:     raw.usage.totalCostUsd,
-        degraded,
-      },
-      this._getCorrelation().correlationId,
-    )).catch(() => {}); // fire-and-forget — never block the LLM call path
+    this._eventBus
+      .emit(
+        this._makeDomainEvent(
+          'LLMCallCompleted',
+          req.tenantId,
+          req.ticketId ?? req.tenantId,
+          {
+            tenantId: req.tenantId,
+            ticketId: req.ticketId,
+            agentId: req.agentId,
+            task: req.task,
+            provider: usedProvider,
+            model: raw.model,
+            latencyMs,
+            promptTokens: raw.usage.promptTokens,
+            completionTokens: raw.usage.completionTokens,
+            totalCostUsd: raw.usage.totalCostUsd,
+            degraded,
+          },
+          this._getCorrelation().correlationId,
+        ),
+      )
+      .catch(() => {}); // fire-and-forget — never block the LLM call path
 
     return response;
   }
@@ -422,14 +451,13 @@ export class LLMGateway {
     meta: { tenantId: string; ticketId?: string },
     primaryProvider: 'anthropic' | 'gemini',
   ): Promise<{ raw: RawLLMResponse; usedProvider: 'anthropic' | 'gemini'; degraded: boolean }> {
-    const primaryModel = primaryProvider === 'anthropic'
-      ? (process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-6')
-      : (process.env.MODEL_CLASSIFICATION ?? 'gemini-2.5-flash');
+    const primaryModel =
+      primaryProvider === 'anthropic'
+        ? (process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-6')
+        : (process.env.MODEL_CLASSIFICATION ?? 'gemini-2.5-flash');
 
     const callPrimary = (): Promise<RawLLMResponse> =>
-      primaryProvider === 'anthropic'
-        ? this._callAnthropic(req, meta)
-        : this._callGemini(req, meta);
+      primaryProvider === 'anthropic' ? this._callAnthropic(req, meta) : this._callGemini(req, meta);
 
     // Step 7: if circuit is open, skip primary and go straight to failover
     if (await this._isCircuitOpen(primaryProvider, primaryModel)) {
@@ -452,9 +480,7 @@ export class LLMGateway {
         if (err instanceof PIIMaskingUnavailableError) throw err;
         lastErr = err;
         await this._circuitFailure(primaryProvider, primaryModel);
-        logger.warn(
-          `[LLMGateway] ${primaryProvider} attempt ${attempt}/2 failed: ${err.message}`,
-        );
+        logger.warn(`[LLMGateway] ${primaryProvider} attempt ${attempt}/2 failed: ${err.message}`);
       }
     }
 
@@ -561,12 +587,17 @@ export class LLMGateway {
     const r = this.redis;
     if (!r) return;
     const failKey = `cb:failures:${provider}:${model}`;
-    const count   = await r.incr(failKey).catch(() => 0);
+    const count = await r.incr(failKey).catch(() => 0);
     await r.expire(failKey, 60).catch(() => {}); // auto-reset if quiet for 60s
     if (count >= CIRCUIT_THRESHOLD) {
       const openUntil = Date.now() + CIRCUIT_OPEN_MS;
       await r
-        .set(`cb:open_until:${provider}:${model}`, String(openUntil), 'EX', Math.ceil(CIRCUIT_OPEN_MS / 1000) + 5)
+        .set(
+          `cb:open_until:${provider}:${model}`,
+          String(openUntil),
+          'EX',
+          Math.ceil(CIRCUIT_OPEN_MS / 1000) + 5,
+        )
         .catch(() => {});
       logger.warn(
         `[LLMGateway] Circuit opened for ${provider}/${model} — open until ${new Date(openUntil).toISOString()}`,
@@ -591,12 +622,9 @@ export class LLMGateway {
   private async _dedupSet(tenantId: string, dedupKey: string, response: LLMResponse): Promise<void> {
     const r = this.redis;
     if (!r) return;
-    await r.set(
-      `llmcache:${tenantId}:${dedupKey}`,
-      JSON.stringify(response),
-      'EX',
-      DEDUP_TTL_S,
-    ).catch(() => {});
+    await r
+      .set(`llmcache:${tenantId}:${dedupKey}`, JSON.stringify(response), 'EX', DEDUP_TTL_S)
+      .catch(() => {});
   }
 
   // ── Step 5: per-agent rate limiter ──────────────────────────────────────────
@@ -605,8 +633,8 @@ export class LLMGateway {
     const r = this.redis;
     if (!r) return;
     const minute = Math.floor(Date.now() / 60_000);
-    const key    = `ratelimit:${tenantId}:${agentId}:${minute}`;
-    const count  = await r.incr(key).catch(() => 0);
+    const key = `ratelimit:${tenantId}:${agentId}:${minute}`;
+    const count = await r.incr(key).catch(() => 0);
     if (count === 1) {
       // First request in this window — set TTL to 2× window so the key auto-expires
       await r.expire(key, RATE_LIMIT_WINDOW_S * 2).catch(() => {});
@@ -644,7 +672,7 @@ export class LLMGateway {
     req: LLMRequest,
     meta: { tenantId: string; ticketId?: string },
   ): Promise<RawLLMResponse> {
-    const model    = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-6';
+    const model = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-6';
     const provider = await this._getAnthropicProvider(req.agentId);
 
     if (req.tools?.length && req.messages) {
@@ -656,8 +684,8 @@ export class LLMGateway {
         meta,
       );
       return {
-        text:       result.text,
-        toolCalls:  result.toolCalls,
+        text: result.text,
+        toolCalls: result.toolCalls,
         rawContent: result.rawContent,
         stopReason: result.stopReason,
         model,
@@ -666,7 +694,11 @@ export class LLMGateway {
     }
 
     const prompt = this._buildPrompt(req);
-    const { text, promptTokens, completionTokens } = await provider.generateTextWithUsage(req.task, prompt, meta);
+    const { text, promptTokens, completionTokens } = await provider.generateTextWithUsage(
+      req.task,
+      prompt,
+      meta,
+    );
     return {
       text,
       model,
@@ -683,8 +715,11 @@ export class LLMGateway {
     // not a hardcoded MODEL_CLASSIFICATION guess — otherwise a failover/forced
     // answer_generation call (gemini-2.5-pro) was mislabelled+undercosted as
     // gemini-2.5-flash, so the event/metrics disagreed with the ledger (audit S-06).
-    const { text, promptTokens, completionTokens, model } =
-      await this.gemini.generateTextWithUsage(req.task, prompt, meta);
+    const { text, promptTokens, completionTokens, model } = await this.gemini.generateTextWithUsage(
+      req.task,
+      prompt,
+      meta,
+    );
     return {
       text,
       model,
@@ -717,14 +752,15 @@ export class LLMGateway {
     const parts: string[] = [];
     if (req.systemPrompt) parts.push(req.systemPrompt);
     for (const m of req.messages) {
-      const text = typeof m.content === 'string'
-        ? m.content
-        : Array.isArray(m.content)
+      const text =
+        typeof m.content === 'string'
           ? m.content
-              .map((b) => ('text' in b ? (b as { text: string }).text : ''))
-              .filter(Boolean)
-              .join('\n')
-          : '';
+          : Array.isArray(m.content)
+            ? m.content
+                .map((b) => ('text' in b ? (b as { text: string }).text : ''))
+                .filter(Boolean)
+                .join('\n')
+            : '';
       if (text) parts.push(`${m.role}: ${text}`);
     }
     return parts.join('\n\n');
@@ -740,15 +776,17 @@ export class LLMGateway {
     const labels = {
       provider,
       model,
-      task:      req.task,
-      agent_id:  req.agentId,
+      task: req.task,
+      agent_id: req.agentId,
       tenant_id: req.tenantId,
     };
 
     this._metrics.observe('llm_request_duration_ms', latencyMs, labels);
 
-    if (usage.promptTokens > 0)     this._metrics.increment('llm_prompt_tokens_total',     labels, usage.promptTokens);
-    if (usage.completionTokens > 0) this._metrics.increment('llm_completion_tokens_total', labels, usage.completionTokens);
-    if (usage.totalCostUsd > 0)     this._metrics.increment('llm_cost_usd_total',          labels, usage.totalCostUsd);
+    if (usage.promptTokens > 0)
+      this._metrics.increment('llm_prompt_tokens_total', labels, usage.promptTokens);
+    if (usage.completionTokens > 0)
+      this._metrics.increment('llm_completion_tokens_total', labels, usage.completionTokens);
+    if (usage.totalCostUsd > 0) this._metrics.increment('llm_cost_usd_total', labels, usage.totalCostUsd);
   }
 }

@@ -34,9 +34,7 @@ export function runWithAgent<T>(agentId: string, fn: () => T): T {
   // Preserve an existing correlationId; otherwise mint a real one. Never inject an
   // empty string — downstream consumers (e.g. makeDomainEvent → DomainEventLog, which
   // requires correlationId) treat '' as missing and reject the write.
-  const next: CorrelationStore = current
-    ? { ...current, agentId }
-    : { correlationId: randomUUID(), agentId };
+  const next: CorrelationStore = current ? { ...current, agentId } : { correlationId: randomUUID(), agentId };
   return correlationStorage.run(next, fn);
 }
 

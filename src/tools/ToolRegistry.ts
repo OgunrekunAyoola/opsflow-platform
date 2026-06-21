@@ -41,12 +41,18 @@ function zodFieldToJsonSchema(field: any): Record<string, unknown> {
   if (typeof field.description === 'string') base.description = field.description;
 
   switch (def.type) {
-    case 'string':  return { type: 'string', ...base };
-    case 'number':  return { type: 'number', ...base };
-    case 'boolean': return { type: 'boolean', ...base };
-    case 'enum':    return { type: 'string', enum: def.entries ? Object.keys(def.entries) : def.values ?? [], ...base };
-    case 'array':   return { type: 'array', items: zodFieldToJsonSchema(def.element), ...base };
-    default:        return base;
+    case 'string':
+      return { type: 'string', ...base };
+    case 'number':
+      return { type: 'number', ...base };
+    case 'boolean':
+      return { type: 'boolean', ...base };
+    case 'enum':
+      return { type: 'string', enum: def.entries ? Object.keys(def.entries) : (def.values ?? []), ...base };
+    case 'array':
+      return { type: 'array', items: zodFieldToJsonSchema(def.element), ...base };
+    default:
+      return base;
   }
 }
 

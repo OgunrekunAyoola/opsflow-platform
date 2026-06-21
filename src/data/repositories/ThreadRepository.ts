@@ -19,17 +19,24 @@ export class ThreadRepository extends BaseRepository<IThread> {
     now: Date,
   ): Promise<IThread> {
     const tid = this.toObjectId(tenantId);
-    const doc = await (this.model as any).findOneAndUpdate(
+    const doc = (await (this.model as any).findOneAndUpdate(
       { tenantId: tid, customerId, channel },
       {
         $setOnInsert: {
-          tenantId: tid, customerId, channel, channelAddress,
-          state: 'idle', stateUpdatedAt: now, firstContactAt: now, totalTickets: 0, keyFacts: [],
+          tenantId: tid,
+          customerId,
+          channel,
+          channelAddress,
+          state: 'idle',
+          stateUpdatedAt: now,
+          firstContactAt: now,
+          totalTickets: 0,
+          keyFacts: [],
         },
         $set: { lastCustomerMessageAt: now, lastActivityAt: now },
       },
       { upsert: true, new: true, lean: true },
-    ) as IThread;
+    )) as IThread;
     return doc;
   }
 
@@ -47,11 +54,16 @@ export class ThreadRepository extends BaseRepository<IThread> {
   }
 
   async addKeyFact(tenantId: string, threadId: string, fact: string): Promise<IThread | null> {
-    return this.updateById(tenantId, threadId, { $addToSet: { keyFacts: fact }, $set: { lastActivityAt: new Date() } });
+    return this.updateById(tenantId, threadId, {
+      $addToSet: { keyFacts: fact },
+      $set: { lastActivityAt: new Date() },
+    });
   }
 
   async updateSummary(tenantId: string, threadId: string, summary: string): Promise<IThread | null> {
-    return this.updateById(tenantId, threadId, { $set: { threadSummary: summary, lastActivityAt: new Date() } });
+    return this.updateById(tenantId, threadId, {
+      $set: { threadSummary: summary, lastActivityAt: new Date() },
+    });
   }
 
   async applyTransition(
@@ -65,7 +77,9 @@ export class ThreadRepository extends BaseRepository<IThread> {
       { _id: this.toObjectId(threadId), tenantId: this.toObjectId(tenantId) },
       {
         $set: {
-          state: newState, stateUpdatedAt: now, lastActivityAt: now,
+          state: newState,
+          stateUpdatedAt: now,
+          lastActivityAt: now,
           ...(ticketId ? { currentTicketId: this.toObjectId(ticketId) } : {}),
           ...(newState === 'resolved' ? { lastResolvedAt: now } : {}),
         },
@@ -85,8 +99,12 @@ export class ThreadRepository extends BaseRepository<IThread> {
       { tenantId: this.toObjectId(tenantId), currentTicketId: this.toObjectId(ticketId) },
       {
         $set: {
-          state: 'resolved', stateUpdatedAt: now, lastResolvedAt: now, lastActivityAt: now,
-          lastTicketId: this.toObjectId(ticketId), ...extra,
+          state: 'resolved',
+          stateUpdatedAt: now,
+          lastResolvedAt: now,
+          lastActivityAt: now,
+          lastTicketId: this.toObjectId(ticketId),
+          ...extra,
         },
         $inc: { totalTickets: 1 },
         $unset: { currentTicketId: '' },

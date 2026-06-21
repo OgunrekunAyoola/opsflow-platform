@@ -15,11 +15,16 @@ export class TicketReplyRepository extends BaseRepository<ITicketReply> {
   }
 
   async findLastHumanReply(tenantId: string, ticketId: string): Promise<ITicketReply | null> {
-    const replies = await (this.model as any)
-      .find({ tenantId: this.toObjectId(tenantId), ticketId: this.toObjectId(ticketId), authorType: 'human', deletedAt: null })
+    const replies = (await (this.model as any)
+      .find({
+        tenantId: this.toObjectId(tenantId),
+        ticketId: this.toObjectId(ticketId),
+        authorType: 'human',
+        deletedAt: null,
+      })
       .sort({ createdAt: -1 })
       .limit(1)
-      .lean() as ITicketReply[];
+      .lean()) as ITicketReply[];
     return replies[0] ?? null;
   }
 

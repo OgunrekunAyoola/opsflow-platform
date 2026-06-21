@@ -1,7 +1,7 @@
 import type { Document, Types } from 'mongoose';
 
 export interface IPromptVersion extends Document {
-  tenantId?: Types.ObjectId;  // null = global default
+  tenantId?: Types.ObjectId; // null = global default
   name: string;
   version: number;
   content: string;
@@ -14,11 +14,11 @@ export function buildPromptVersionSchema(m: typeof import('mongoose')) {
   const { Schema } = m;
   const PromptVersionSchema = new Schema<IPromptVersion>(
     {
-      tenantId:  { type: Schema.Types.ObjectId, ref: 'Tenant', default: null },
-      name:      { type: String, required: true },
-      version:   { type: Number, required: true },
-      content:   { type: String, required: true },
-      isActive:  { type: Boolean, default: true },
+      tenantId: { type: Schema.Types.ObjectId, ref: 'Tenant', default: null },
+      name: { type: String, required: true },
+      version: { type: Number, required: true },
+      content: { type: String, required: true },
+      isActive: { type: Boolean, default: true },
       createdBy: { type: String },
     },
     { timestamps: { createdAt: true, updatedAt: false } },

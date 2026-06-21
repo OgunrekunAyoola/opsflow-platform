@@ -1,22 +1,22 @@
 export type ToolErrorCode =
-  | 'MISSING_CREDENTIAL'       // retryable: false
-  | 'AUTH_ERROR'               // retryable: false
-  | 'TENANT_SCOPE_VIOLATION'   // retryable: false
-  | 'INVALID_INPUT'            // retryable: false
-  | 'TOOL_NOT_FOUND'           // retryable: false
-  | 'RATE_LIMIT'               // retryable: true
-  | 'DOWNSTREAM_UNAVAILABLE'   // retryable: true
-  | 'DOWNSTREAM_ERROR';        // retryable: false
+  | 'MISSING_CREDENTIAL' // retryable: false
+  | 'AUTH_ERROR' // retryable: false
+  | 'TENANT_SCOPE_VIOLATION' // retryable: false
+  | 'INVALID_INPUT' // retryable: false
+  | 'TOOL_NOT_FOUND' // retryable: false
+  | 'RATE_LIMIT' // retryable: true
+  | 'DOWNSTREAM_UNAVAILABLE' // retryable: true
+  | 'DOWNSTREAM_ERROR'; // retryable: false
 
 const RETRYABLE: Record<ToolErrorCode, boolean> = {
-  MISSING_CREDENTIAL:     false,
-  AUTH_ERROR:             false,
+  MISSING_CREDENTIAL: false,
+  AUTH_ERROR: false,
   TENANT_SCOPE_VIOLATION: false,
-  INVALID_INPUT:          false,
-  TOOL_NOT_FOUND:         false,
-  RATE_LIMIT:             true,
+  INVALID_INPUT: false,
+  TOOL_NOT_FOUND: false,
+  RATE_LIMIT: true,
   DOWNSTREAM_UNAVAILABLE: true,
-  DOWNSTREAM_ERROR:       false,
+  DOWNSTREAM_ERROR: false,
 };
 
 export interface ToolErrorDetail {

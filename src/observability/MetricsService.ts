@@ -211,8 +211,8 @@ const GAUGE_CONFIGS: Record<GaugeName, { help: string; labelNames: string[] }> =
 export class MetricsService {
   private readonly registry: prom.Registry;
   private readonly histograms = new Map<HistogramName, prom.Histogram>();
-  private readonly counters   = new Map<CounterName,   prom.Counter>();
-  private readonly gauges     = new Map<GaugeName,     prom.Gauge>();
+  private readonly counters = new Map<CounterName, prom.Counter>();
+  private readonly gauges = new Map<GaugeName, prom.Gauge>();
 
   constructor(registry?: prom.Registry) {
     // Allow injecting a fresh registry in tests to avoid cross-test pollution
@@ -221,32 +221,50 @@ export class MetricsService {
   }
 
   private _registerAll(): void {
-    for (const [name, cfg] of Object.entries(HISTOGRAM_CONFIGS) as [HistogramName, typeof HISTOGRAM_CONFIGS[HistogramName]][]) {
-      this.histograms.set(name, new prom.Histogram({
-        name: `opsflow_${name}`,
-        help: cfg.help,
-        labelNames: cfg.labelNames,
-        buckets: cfg.buckets,
-        registers: [this.registry],
-      }));
+    for (const [name, cfg] of Object.entries(HISTOGRAM_CONFIGS) as [
+      HistogramName,
+      (typeof HISTOGRAM_CONFIGS)[HistogramName],
+    ][]) {
+      this.histograms.set(
+        name,
+        new prom.Histogram({
+          name: `opsflow_${name}`,
+          help: cfg.help,
+          labelNames: cfg.labelNames,
+          buckets: cfg.buckets,
+          registers: [this.registry],
+        }),
+      );
     }
 
-    for (const [name, cfg] of Object.entries(COUNTER_CONFIGS) as [CounterName, typeof COUNTER_CONFIGS[CounterName]][]) {
-      this.counters.set(name, new prom.Counter({
-        name: `opsflow_${name}`,
-        help: cfg.help,
-        labelNames: cfg.labelNames,
-        registers: [this.registry],
-      }));
+    for (const [name, cfg] of Object.entries(COUNTER_CONFIGS) as [
+      CounterName,
+      (typeof COUNTER_CONFIGS)[CounterName],
+    ][]) {
+      this.counters.set(
+        name,
+        new prom.Counter({
+          name: `opsflow_${name}`,
+          help: cfg.help,
+          labelNames: cfg.labelNames,
+          registers: [this.registry],
+        }),
+      );
     }
 
-    for (const [name, cfg] of Object.entries(GAUGE_CONFIGS) as [GaugeName, typeof GAUGE_CONFIGS[GaugeName]][]) {
-      this.gauges.set(name, new prom.Gauge({
-        name: `opsflow_${name}`,
-        help: cfg.help,
-        labelNames: cfg.labelNames,
-        registers: [this.registry],
-      }));
+    for (const [name, cfg] of Object.entries(GAUGE_CONFIGS) as [
+      GaugeName,
+      (typeof GAUGE_CONFIGS)[GaugeName],
+    ][]) {
+      this.gauges.set(
+        name,
+        new prom.Gauge({
+          name: `opsflow_${name}`,
+          help: cfg.help,
+          labelNames: cfg.labelNames,
+          registers: [this.registry],
+        }),
+      );
     }
   }
 

@@ -19,9 +19,7 @@ export class ConfigChangeLogRepository extends BaseRepository<IConfigChangeLog> 
   /** Append-only audit trail of config changes (ADR-T4). Never updated after insert. */
   async logChanges(tenantId: string, entries: ConfigChangeEntry[]): Promise<void> {
     if (entries.length === 0) return;
-    await (this.model as any).insertMany(
-      entries.map((e) => ({ ...e, tenantId: this.toObjectId(tenantId) })),
-    );
+    await (this.model as any).insertMany(entries.map((e) => ({ ...e, tenantId: this.toObjectId(tenantId) })));
   }
 
   /** Change history, newest first. */

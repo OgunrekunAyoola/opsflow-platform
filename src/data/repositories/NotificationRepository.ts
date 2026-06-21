@@ -40,10 +40,7 @@ export class NotificationRepository extends BaseRepository<INotification> {
    * Bulk-create notifications in a single round-trip.
    * Equivalent to Notification.insertMany() with tenantId injected.
    */
-  async createMany(
-    tenantId: string,
-    items: Array<Omit<Partial<INotification>, 'tenantId'>>,
-  ): Promise<void> {
+  async createMany(tenantId: string, items: Array<Omit<Partial<INotification>, 'tenantId'>>): Promise<void> {
     if (!items.length) return;
     const tid = new mongoose.Types.ObjectId(tenantId);
     await (this.model as any).insertMany(items.map((item) => ({ ...item, tenantId: tid })));
@@ -86,11 +83,7 @@ export class NotificationRepository extends BaseRepository<INotification> {
   }
 
   /** Mark a single notification as read (scoped to tenant + user for safety). */
-  async markOneRead(
-    tenantId: string,
-    notificationId: string,
-    userId: string,
-  ): Promise<INotification | null> {
+  async markOneRead(tenantId: string, notificationId: string, userId: string): Promise<INotification | null> {
     return (this.model as any).findOneAndUpdate(
       {
         _id: new mongoose.Types.ObjectId(notificationId),

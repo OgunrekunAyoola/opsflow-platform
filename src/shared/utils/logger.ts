@@ -28,9 +28,7 @@ const _logger = pino({
 
 // Normalise error values so pino can serialise them cleanly.
 const normaliseErr = (err: unknown): object =>
-  err instanceof Error
-    ? { err: { message: err.message, stack: err.stack, name: err.name } }
-    : { err };
+  err instanceof Error ? { err: { message: err.message, stack: err.stack, name: err.name } } : { err };
 
 type StructuredCtx = Record<string, unknown>;
 
@@ -56,11 +54,11 @@ function makeLevel(level: 'info' | 'warn' | 'error' | 'debug' | 'trace') {
 }
 
 const logger = {
-  info:  makeLevel('info'),
-  warn:  makeLevel('warn'),
+  info: makeLevel('info'),
+  warn: makeLevel('warn'),
   error: makeLevel('error'),
   debug: makeLevel('debug'),
-  http:  makeLevel('trace'),
+  http: makeLevel('trace'),
 };
 
 export default logger;

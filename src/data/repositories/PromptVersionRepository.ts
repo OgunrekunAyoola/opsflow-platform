@@ -18,7 +18,8 @@ export class PromptVersionRepository {
   }
 
   async findActiveGlobal(name: string): Promise<IPromptVersion | null> {
-    return (this.model as any).findOne({ tenantId: null, name, isActive: true })
+    return (this.model as any)
+      .findOne({ tenantId: null, name, isActive: true })
       .sort({ version: -1 })
       .lean() as Promise<IPromptVersion | null>;
   }

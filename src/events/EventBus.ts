@@ -47,47 +47,60 @@ export class BullMQEventBus implements IEventBus {
     // 1. Persist to MongoDB (durable event log)
     try {
       await this.deps.eventLog.create({
-        eventId:       event.eventId,
-        eventName:     event.eventName,
-        tenantId:      event.tenantId,
-        partitionKey:  event.partitionKey,
-        occurredAt:    event.occurredAt,
+        eventId: event.eventId,
+        eventName: event.eventName,
+        tenantId: event.tenantId,
+        partitionKey: event.partitionKey,
+        occurredAt: event.occurredAt,
         correlationId: event.correlationId,
-        payload:       event.payload,
-        enqueuedAt:    new Date(),
+        payload: event.payload,
+        enqueuedAt: new Date(),
       });
     } catch (err: any) {
       // Duplicate eventId (replay) is OK — skip silently
       if (err?.code !== 11000) {
-        logger.warn({ event: 'event_log_write_failed', eventName: event.eventName, err: err.message }, 'DomainEventLog write failed — event still enqueued');
+        logger.warn(
+          { event: 'event_log_write_failed', eventName: event.eventName, err: err.message },
+          'DomainEventLog write failed — event still enqueued',
+        );
       }
     }
 
     // 2. Enqueue to BullMQ for async dispatch to subscribers
     try {
       await this.getQueue().add(event.eventName, event, {
-        jobId:    event.eventId,          // dedup at BullMQ level
+        jobId: event.eventId, // dedup at BullMQ level
         attempts: 5,
-        backoff:  { type: 'exponential', delay: 2000 },
+        backoff: { type: 'exponential', delay: 2000 },
       });
     } catch (err: any) {
-      logger.warn({ event: 'event_enqueue_failed', eventName: event.eventName, err: err.message }, 'DomainEvent enqueue failed');
+      logger.warn(
+        { event: 'event_enqueue_failed', eventName: event.eventName, err: err.message },
+        'DomainEvent enqueue failed',
+      );
     }
 
-    logger.info({ event: 'domain_event_emitted', eventName: event.eventName, tenantId: event.tenantId, eventId: event.eventId }, 'Domain event emitted');
+    logger.info(
+      {
+        event: 'domain_event_emitted',
+        eventName: event.eventName,
+        tenantId: event.tenantId,
+        eventId: event.eventId,
+      },
+      'Domain event emitted',
+    );
   }
 
   // ── Subscribe ─────────────────────────────────────────────────────────────
 
-  subscribe<T>(
-    eventName: DomainEventName,
-    handler: EventHandler<T>,
-    options: SubscriberOptions,
-  ): void {
+  subscribe<T>(eventName: DomainEventName, handler: EventHandler<T>, options: SubscriberOptions): void {
     const entries = this.subscribers.get(eventName) ?? [];
     entries.push({ handler: handler as EventHandler<any>, subscriberName: options.subscriberName });
     this.subscribers.set(eventName, entries);
-    logger.info({ event: 'subscriber_registered', eventName, subscriberName: options.subscriberName }, 'Subscriber registered');
+    logger.info(
+      { event: 'subscriber_registered', eventName, subscriberName: options.subscriberName },
+      'Subscriber registered',
+    );
   }
 
   // ── Dispatch (called by BullMQ worker) ───────────────────────────────────
@@ -106,7 +119,10 @@ export class BullMQEventBus implements IEventBus {
         if (redis) {
           const done = await redis.get(markerKey).catch(() => null);
           if (done) {
-            logger.info({ event: 'subscriber_skipped_idempotent', subscriberName, eventId: event.eventId }, 'Event already processed by subscriber');
+            logger.info(
+              { event: 'subscriber_skipped_idempotent', subscriberName, eventId: event.eventId },
+              'Event already processed by subscriber',
+            );
             return;
           }
         }
@@ -119,9 +135,26 @@ export class BullMQEventBus implements IEventBus {
             await redis.set(markerKey, '1', 'EX', 7 * 24 * 3600).catch(() => {});
           }
 
-          logger.info({ event: 'subscriber_success', subscriberName, eventName: event.eventName, eventId: event.eventId }, 'Subscriber processed event');
+          logger.info(
+            {
+              event: 'subscriber_success',
+              subscriberName,
+              eventName: event.eventName,
+              eventId: event.eventId,
+            },
+            'Subscriber processed event',
+          );
         } catch (err: any) {
-          logger.error({ event: 'subscriber_error', subscriberName, eventName: event.eventName, eventId: event.eventId, err: err.message }, 'Subscriber failed — will be retried by BullMQ');
+          logger.error(
+            {
+              event: 'subscriber_error',
+              subscriberName,
+              eventName: event.eventName,
+              eventId: event.eventId,
+              err: err.message,
+            },
+            'Subscriber failed — will be retried by BullMQ',
+          );
           throw err;
         }
       }),

@@ -33,9 +33,9 @@ export class LlmCallLogRepository {
     return (this.model as any).create({
       tenantId: entry.tenantId ? new mongoose.Types.ObjectId(entry.tenantId) : undefined,
       ticketId: entry.ticketId ? new mongoose.Types.ObjectId(entry.ticketId) : undefined,
-      task:      entry.task,
+      task: entry.task,
       modelName: entry.modelName,
-      success:   entry.success,
+      success: entry.success,
       latencyMs: entry.latencyMs,
       ...(entry.error ? { errorMessage: entry.error } : {}),
     });
@@ -53,10 +53,10 @@ export class LlmCallLogRepository {
       { $match: match },
       {
         $group: {
-          _id:          '$task',
-          totalCalls:   { $sum: 1 },
-          successes:    { $sum: { $cond: ['$success', 1, 0] } },
-          failures:     { $sum: { $cond: ['$success', 0, 1] } },
+          _id: '$task',
+          totalCalls: { $sum: 1 },
+          successes: { $sum: { $cond: ['$success', 1, 0] } },
+          failures: { $sum: { $cond: ['$success', 0, 1] } },
           avgLatencyMs: { $avg: '$latencyMs' },
         },
       },

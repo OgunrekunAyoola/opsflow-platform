@@ -19,15 +19,15 @@ export function buildAgentVersionSchema(m: typeof import('mongoose')) {
   const { Schema } = m;
   const AgentVersionSchema = new Schema<IAgentVersion>(
     {
-      tenantId:        { type: Schema.Types.ObjectId, required: true, index: true },
-      agentId:         { type: String, required: true, index: true },
-      versionId:       { type: String, required: true },
+      tenantId: { type: Schema.Types.ObjectId, required: true, index: true },
+      agentId: { type: String, required: true, index: true },
+      versionId: { type: String, required: true },
       promptVersionId: { type: Schema.Types.ObjectId, ref: 'PromptVersion', default: null },
-      status:          { type: String, enum: ['shadow', 'canary', 'production', 'retired'], required: true },
-      trafficPercent:  { type: Number, required: true, min: 0, max: 100, default: 0 },
-      promotedAt:      { type: Date },
-      retiredAt:       { type: Date },
-      createdBy:       { type: String },
+      status: { type: String, enum: ['shadow', 'canary', 'production', 'retired'], required: true },
+      trafficPercent: { type: Number, required: true, min: 0, max: 100, default: 0 },
+      promotedAt: { type: Date },
+      retiredAt: { type: Date },
+      createdBy: { type: String },
     },
     { timestamps: { createdAt: true, updatedAt: false } },
   );

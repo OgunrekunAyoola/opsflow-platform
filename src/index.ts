@@ -33,14 +33,24 @@ export type { MaskResult } from './pii/PIIMasker';
 export { PushService } from './infra/PushService';
 export type { PushMessage, DeviceTokenLookup } from './infra/PushService';
 export { makeDomainEvent } from './events/DomainEvent';
-export type { DomainEvent, DomainEventName, EventHandler, SubscriberOptions, IEventBus } from './events/DomainEvent';
+export type {
+  DomainEvent,
+  DomainEventName,
+  EventHandler,
+  SubscriberOptions,
+  IEventBus,
+} from './events/DomainEvent';
 export { BullMQEventBus } from './events/EventBus';
 export type { EventBusDeps, EventLogStore, EventQueue, EventRedis } from './events/EventBus';
 export { computeLlmCostUsd } from './llm/cost';
 export type { LLMProvider, ProviderMasker, CallLogger, ProviderDeps } from './llm/LLMProvider';
 export { ModelRouter } from './llm/ModelRouter';
 export { AnthropicProvider } from './llm/AnthropicProvider';
-export type { ToolDefinition as AnthropicToolDefinition, ToolUseResult, TextWithUsage } from './llm/AnthropicProvider';
+export type {
+  ToolDefinition as AnthropicToolDefinition,
+  ToolUseResult,
+  TextWithUsage,
+} from './llm/AnthropicProvider';
 export { GeminiProvider } from './llm/GeminiProvider';
 export {
   LLMGateway,

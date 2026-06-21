@@ -15,8 +15,8 @@ export class KBArticleRepository extends BaseRepository<IKBArticle> {
     return this.find(tenantId, {
       $or: [
         { title: { $regex: s, $options: 'i' } },
-        { body:  { $regex: s, $options: 'i' } },
-        { tags:  { $elemMatch: { $regex: s, $options: 'i' } } },
+        { body: { $regex: s, $options: 'i' } },
+        { tags: { $elemMatch: { $regex: s, $options: 'i' } } },
       ],
     } as any);
   }

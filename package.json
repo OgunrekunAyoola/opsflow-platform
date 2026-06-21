@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "description": "OpsFlow Data plane SDK — repositories, models, LLM gateway, event bus, PII, metrics, secrets, tools SDK. Depends on @opsflow/contracts.",
   "license": "UNLICENSED",
-  "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -12,7 +11,10 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
+    "lint": "eslint src --max-warnings=0",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
     "clean": "rm -rf dist"
   },
   "dependencies": {
@@ -30,8 +32,12 @@
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/node": "^25.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.8.0",
+    "@typescript-eslint/parser": "^8.8.0",
+    "eslint": "^8.57.0",
     "jest": "^30.4.2",
     "mongoose": "^8.6.0",
+    "prettier": "^3.4.2",
     "ts-jest": "^29.4.10",
     "typescript": "^5.9.3"
   },
@@ -40,6 +46,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/opsflow/opsflow-platform.git"
+    "url": "https://github.com/OgunrekunAyoola/opsflow-platform.git"
   }
 }

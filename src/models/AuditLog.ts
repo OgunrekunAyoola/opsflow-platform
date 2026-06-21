@@ -18,11 +18,11 @@ export function buildAuditLogSchema(m: typeof import('mongoose')) {
     {
       tenantId: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true, index: true },
       ticketId: { type: Schema.Types.ObjectId, ref: 'Ticket', index: true },
-      actor:    { type: String, enum: ['ai', 'human', 'system'], required: true },
-      actorId:  { type: String },
-      action:   { type: String, required: true },
+      actor: { type: String, enum: ['ai', 'human', 'system'], required: true },
+      actorId: { type: String },
+      action: { type: String, required: true },
       metadata: { type: Schema.Types.Mixed },
-      createdAt:{ type: Date, default: Date.now, immutable: true },
+      createdAt: { type: Date, default: Date.now, immutable: true },
     },
     { timestamps: false },
   );

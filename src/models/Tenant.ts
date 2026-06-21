@@ -1,13 +1,13 @@
-import type { Document, Types } from 'mongoose';
+import type { Document } from 'mongoose';
 import { TIER_IDS, type Tier } from '@opsflow/contracts';
 
 export interface IWhatsAppConfig {
-  phoneNumberId?:      string;
-  accessToken?:        string; // AES-256-GCM encrypted — always use encryption.ts to read/write
-  wabaId?:             string;
+  phoneNumberId?: string;
+  accessToken?: string; // AES-256-GCM encrypted — always use encryption.ts to read/write
+  wabaId?: string;
   webhookVerifyToken?: string;
-  isVerified:          boolean;
-  verifiedAt?:         Date;
+  isVerified: boolean;
+  verifiedAt?: Date;
 }
 
 export interface ITenant extends Document {
@@ -83,22 +83,22 @@ export function buildTenantSchema(m: typeof import('mongoose')) {
       brandTone: { type: String, enum: ['professional', 'friendly', 'concise'], default: 'professional' },
       escalationThreshold: { type: Number, default: 70 },
       escalationRequiredList: { type: [String], default: [] },
-      prohibitedTopics:       { type: [String], default: [] },
+      prohibitedTopics: { type: [String], default: [] },
       tier: { type: String, enum: [...TIER_IDS], default: 'starter', index: true },
-      ticketCap:            { type: Number },
-      overageRateUsd:       { type: Number },
+      ticketCap: { type: Number },
+      overageRateUsd: { type: Number },
       billingCycleStartDay: { type: Number, default: 1 },
       ticketsUsedThisCycle: { type: Number, default: 0 },
-      dailyLlmBudgetUsd:    { type: Number },
-      paystackWebhookSecret:    { type: String },
+      dailyLlmBudgetUsd: { type: Number },
+      paystackWebhookSecret: { type: String },
       flutterwaveWebhookSecret: { type: String },
       whatsapp: {
-        phoneNumberId:      { type: String },
-        accessToken:        { type: String },
-        wabaId:             { type: String },
+        phoneNumberId: { type: String },
+        accessToken: { type: String },
+        wabaId: { type: String },
         webhookVerifyToken: { type: String },
-        isVerified:         { type: Boolean, default: false },
-        verifiedAt:         { type: Date },
+        isVerified: { type: Boolean, default: false },
+        verifiedAt: { type: Date },
       },
     },
     { timestamps: true },

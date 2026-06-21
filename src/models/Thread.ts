@@ -1,7 +1,12 @@
 import type { Document, Types } from 'mongoose';
 
 export type ThreadState =
-  | 'idle' | 'active' | 'pending_customer' | 'pending_vendor' | 'pending_human' | 'resolved';
+  | 'idle'
+  | 'active'
+  | 'pending_customer'
+  | 'pending_vendor'
+  | 'pending_human'
+  | 'resolved';
 export type ChannelType = 'email' | 'whatsapp' | 'web_form' | 'integration';
 
 export interface IThread extends Document {

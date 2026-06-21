@@ -29,7 +29,7 @@ export interface ToolDefinition {
 export interface ToolUseResult {
   text: string;
   toolCalls: Array<{ id: string; name: string; input: Record<string, unknown> }>;
-  rawContent: Anthropic.ContentBlock[];  // needed by callers building multi-turn history
+  rawContent: Anthropic.ContentBlock[]; // needed by callers building multi-turn history
   stopReason: string;
   promptTokens: number;
   completionTokens: number;
@@ -230,14 +230,16 @@ export class AnthropicProvider implements LLMProvider {
     // LLMCallCompleted subscriber (single writer — audit N-36). `usage` is no
     // longer consumed here but is kept on the signature for the call-log shape.
     void usage;
-    this.llmCallLog.log({
-      tenantId: meta?.tenantId,
-      ticketId: meta?.ticketId,
-      task,
-      modelName: this.model,
-      success,
-      latencyMs,
-      error,
-    }).catch((e) => logger.warn('[AnthropicProvider] Failed to write LlmCallLog', e));
+    this.llmCallLog
+      .log({
+        tenantId: meta?.tenantId,
+        ticketId: meta?.ticketId,
+        task,
+        modelName: this.model,
+        success,
+        latencyMs,
+        error,
+      })
+      .catch((e) => logger.warn('[AnthropicProvider] Failed to write LlmCallLog', e));
   }
 }

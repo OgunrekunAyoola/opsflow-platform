@@ -19,12 +19,24 @@ export class OrderRepository extends BaseRepository<IOrder> {
     return this.updateById(tenantId, orderId, { $set: { status: 'pending_refund', refundReason: reason } });
   }
 
-  async submitRefundReview(tenantId: string, orderId: string, reviewId: string, reason: string): Promise<IOrder | null> {
-    return (this.model as any).findOneAndUpdate(
-      { tenantId: this.toObjectId(tenantId), orderId, deletedAt: null, status: { $nin: ['refunded', 'pending_refund'] } },
-      { $set: { status: 'pending_refund', refundId: reviewId, refundReason: reason } },
-      { new: true },
-    ).lean() as Promise<IOrder | null>;
+  async submitRefundReview(
+    tenantId: string,
+    orderId: string,
+    reviewId: string,
+    reason: string,
+  ): Promise<IOrder | null> {
+    return (this.model as any)
+      .findOneAndUpdate(
+        {
+          tenantId: this.toObjectId(tenantId),
+          orderId,
+          deletedAt: null,
+          status: { $nin: ['refunded', 'pending_refund'] },
+        },
+        { $set: { status: 'pending_refund', refundId: reviewId, refundReason: reason } },
+        { new: true },
+      )
+      .lean() as Promise<IOrder | null>;
   }
 
   async confirmPaymentByReference(
@@ -32,27 +44,33 @@ export class OrderRepository extends BaseRepository<IOrder> {
     reference: string,
     gateway: 'paystack' | 'flutterwave',
   ): Promise<IOrder | null> {
-    return (this.model as any).findOneAndUpdate(
-      { tenantId: this.toObjectId(tenantId), orderId: reference, deletedAt: null },
-      { $set: { paidAt: new Date(), paymentReference: reference, paymentGateway: gateway } },
-      { new: true },
-    ).lean() as Promise<IOrder | null>;
+    return (this.model as any)
+      .findOneAndUpdate(
+        { tenantId: this.toObjectId(tenantId), orderId: reference, deletedAt: null },
+        { $set: { paidAt: new Date(), paymentReference: reference, paymentGateway: gateway } },
+        { new: true },
+      )
+      .lean() as Promise<IOrder | null>;
   }
 
   async updateShippingAddress(tenantId: string, orderId: string, address: string): Promise<IOrder | null> {
-    return (this.model as any).findOneAndUpdate(
-      { tenantId: this.toObjectId(tenantId), orderId, deletedAt: null, status: 'pending' },
-      { $set: { shippingAddress: address } },
-      { new: true },
-    ).lean() as Promise<IOrder | null>;
+    return (this.model as any)
+      .findOneAndUpdate(
+        { tenantId: this.toObjectId(tenantId), orderId, deletedAt: null, status: 'pending' },
+        { $set: { shippingAddress: address } },
+        { new: true },
+      )
+      .lean() as Promise<IOrder | null>;
   }
 
   async addNote(tenantId: string, orderId: string, body: string): Promise<IOrder | null> {
-    return (this.model as any).findOneAndUpdate(
-      { tenantId: this.toObjectId(tenantId), orderId, deletedAt: null },
-      { $push: { notes: { body, at: new Date() } } },
-      { new: true },
-    ).lean() as Promise<IOrder | null>;
+    return (this.model as any)
+      .findOneAndUpdate(
+        { tenantId: this.toObjectId(tenantId), orderId, deletedAt: null },
+        { $push: { notes: { body, at: new Date() } } },
+        { new: true },
+      )
+      .lean() as Promise<IOrder | null>;
   }
 
   async recordRefund(tenantId: string, orderId: string, refundId: string): Promise<IOrder | null> {

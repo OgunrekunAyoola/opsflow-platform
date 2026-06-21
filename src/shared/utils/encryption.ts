@@ -1,8 +1,7 @@
 import crypto from 'crypto';
 
 const ALGORITHM = 'aes-256-gcm';
-const IV_LENGTH  = 16;
-const TAG_LENGTH = 16;
+const IV_LENGTH = 16;
 
 function getKey(): Buffer {
   const hex = process.env.TENANT_SECRET_ENCRYPTION_KEY;
@@ -18,15 +17,11 @@ function getKey(): Buffer {
  */
 export function encrypt(plaintext: string): string {
   const key = getKey();
-  const iv  = crypto.randomBytes(IV_LENGTH);
+  const iv = crypto.randomBytes(IV_LENGTH);
   const cipher = crypto.createCipheriv(ALGORITHM, key, iv) as crypto.CipherGCM;
   const encrypted = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()]);
   const tag = cipher.getAuthTag();
-  return [
-    iv.toString('base64'),
-    tag.toString('base64'),
-    encrypted.toString('base64'),
-  ].join(':');
+  return [iv.toString('base64'), tag.toString('base64'), encrypted.toString('base64')].join(':');
 }
 
 /**
@@ -38,8 +33,8 @@ export function decrypt(stored: string): string {
   const parts = stored.split(':');
   if (parts.length !== 3) throw new Error('Invalid encrypted value format');
   const [ivB64, tagB64, dataB64] = parts;
-  const iv         = Buffer.from(ivB64,  'base64');
-  const tag        = Buffer.from(tagB64, 'base64');
+  const iv = Buffer.from(ivB64, 'base64');
+  const tag = Buffer.from(tagB64, 'base64');
   const ciphertext = Buffer.from(dataB64, 'base64');
   const decipher = crypto.createDecipheriv(ALGORITHM, key, iv) as crypto.DecipherGCM;
   decipher.setAuthTag(tag);

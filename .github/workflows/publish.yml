@@ -1,0 +1,43 @@
+# Publishes @opsflow/platform to GitHub Packages on a GitHub Release.
+# Needs the @opsflow/contracts source to build, so it checks out the sibling repo
+# (CI_REPO_TOKEN) before building + publishing.
+name: Publish
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: opsflow-platform
+      - name: Checkout @opsflow/contracts (build dependency)
+        uses: actions/checkout@v4
+        with:
+          repository: OgunrekunAyoola/opsflow-contracts
+          path: opsflow-contracts
+          token: ${{ secrets.CI_REPO_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://npm.pkg.github.com
+          scope: '@opsflow'
+      - name: Build dependency — @opsflow/contracts
+        working-directory: opsflow-contracts
+        run: npm ci && npm run build
+      - name: Build + publish — platform
+        working-directory: opsflow-platform
+        run: |
+          npm ci
+          npm run build
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

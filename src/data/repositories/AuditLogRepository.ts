@@ -23,17 +23,19 @@ export class AuditLogRepository extends BaseRepository<IAuditLog> {
     const start = Date.now();
     try {
       const doc = await (this.model as any).create({
-        tenantId:  this.toObjectId(params.tenantId),
-        ticketId:  params.ticketId ? this.toObjectId(params.ticketId) : undefined,
-        actor:     params.actor,
-        actorId:   params.actorId,
-        action:    params.action,
-        metadata:  params.metadata,
+        tenantId: this.toObjectId(params.tenantId),
+        ticketId: params.ticketId ? this.toObjectId(params.ticketId) : undefined,
+        actor: params.actor,
+        actorId: params.actorId,
+        action: params.action,
+        metadata: params.metadata,
       });
       return doc.toObject() as IAuditLog;
     } finally {
       metrics.observe('db_query_duration_ms', Date.now() - start, {
-        collection: 'auditlogs', operation: 'append', tenant_id: params.tenantId,
+        collection: 'auditlogs',
+        operation: 'append',
+        tenant_id: params.tenantId,
       });
     }
   }
@@ -42,14 +44,16 @@ export class AuditLogRepository extends BaseRepository<IAuditLog> {
   async findForTicket(tenantId: string, ticketId: string, limit = 50): Promise<IAuditLog[]> {
     const start = Date.now();
     try {
-      return await (this.model as any)
+      return (await (this.model as any)
         .find({ tenantId: this.toObjectId(tenantId), ticketId: this.toObjectId(ticketId) })
         .sort({ createdAt: -1 })
         .limit(limit)
-        .lean() as IAuditLog[];
+        .lean()) as IAuditLog[];
     } finally {
       metrics.observe('db_query_duration_ms', Date.now() - start, {
-        collection: 'auditlogs', operation: 'findForTicket', tenant_id: tenantId,
+        collection: 'auditlogs',
+        operation: 'findForTicket',
+        tenant_id: tenantId,
       });
     }
   }
@@ -70,15 +74,26 @@ export class AuditLogRepository extends BaseRepository<IAuditLog> {
         (this.model as any).aggregate([
           { $match: match },
           { $unwind: '$metadata.requestedTerms' },
-          { $group: { _id: { $toLower: '$metadata.requestedTerms' }, count: { $sum: 1 }, lastAt: { $max: '$createdAt' } } },
+          {
+            $group: {
+              _id: { $toLower: '$metadata.requestedTerms' },
+              count: { $sum: 1 },
+              lastAt: { $max: '$createdAt' },
+            },
+          },
           { $sort: { count: -1, lastAt: -1 } },
           { $limit: limit },
         ]),
       ]);
-      return { total, items: (grouped as any[]).map((g) => ({ term: g._id, count: g.count, lastAt: g.lastAt })) };
+      return {
+        total,
+        items: (grouped as any[]).map((g) => ({ term: g._id, count: g.count, lastAt: g.lastAt })),
+      };
     } finally {
       metrics.observe('db_query_duration_ms', Date.now() - start, {
-        collection: 'auditlogs', operation: 'aggregateProductInterest', tenant_id: tenantId,
+        collection: 'auditlogs',
+        operation: 'aggregateProductInterest',
+        tenant_id: tenantId,
       });
     }
   }

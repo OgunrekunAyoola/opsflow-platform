@@ -26,7 +26,10 @@ let _auditWriter: ToolAuditWriter = { log: async () => undefined };
 let _checkDuplicate: DuplicateChecker = async () => false;
 
 /** Called once by the host at boot to wire the real audit service + idempotency check. */
-export function setToolAuditDeps(deps: { auditWriter: ToolAuditWriter; checkDuplicate: DuplicateChecker }): void {
+export function setToolAuditDeps(deps: {
+  auditWriter: ToolAuditWriter;
+  checkDuplicate: DuplicateChecker;
+}): void {
   _auditWriter = deps.auditWriter;
   _checkDuplicate = deps.checkDuplicate;
 }
@@ -75,7 +78,12 @@ export class ToolsHandle {
     // ADR-T5: deterministic idempotency key — same logical operation on the same
     // ticket always produces the same key, so retries of identical inputs are caught.
     const stableInput = JSON.stringify(
-      Object.keys(input).sort().reduce<Record<string, unknown>>((acc, k) => { acc[k] = input[k]; return acc; }, {}),
+      Object.keys(input)
+        .sort()
+        .reduce<Record<string, unknown>>((acc, k) => {
+          acc[k] = input[k];
+          return acc;
+        }, {}),
     );
     const invocationId = createHash('sha256')
       .update(`${ctx.tenantId}:${ctx.ticketId}:${name}:${stableInput}`)
@@ -99,7 +107,9 @@ export class ToolsHandle {
       const output = await tool.execute(parsed, { tenantId: ctx.tenantId, ticketId: ctx.ticketId });
 
       metrics.observe('tool_duration_ms', Date.now() - startMs, {
-        tool_name: name, tenant_id: ctx.tenantId, success: 'true',
+        tool_name: name,
+        tenant_id: ctx.tenantId,
+        success: 'true',
       });
 
       await _auditWriter.log({
@@ -116,10 +126,14 @@ export class ToolsHandle {
       logger.error(`[ToolsHandle] Tool "${name}" failed — ${detail.code}: ${detail.message}`);
 
       metrics.observe('tool_duration_ms', Date.now() - startMs, {
-        tool_name: name, tenant_id: ctx.tenantId, success: 'false',
+        tool_name: name,
+        tenant_id: ctx.tenantId,
+        success: 'false',
       });
       metrics.increment('tool_error_total', {
-        tool_name: name, tenant_id: ctx.tenantId, error_type: detail.code,
+        tool_name: name,
+        tenant_id: ctx.tenantId,
+        error_type: detail.code,
       });
 
       await _auditWriter.log({
@@ -136,7 +150,13 @@ export class ToolsHandle {
 }
 
 // Mutating tools that require idempotency protection (ADR-T5)
-const MUTATING_TOOLS = new Set(['refund_order', 'reset_password', 'escalate_ticket', 'update_delivery_address', 'add_order_note']);
+const MUTATING_TOOLS = new Set([
+  'refund_order',
+  'reset_password',
+  'escalate_ticket',
+  'update_delivery_address',
+  'add_order_note',
+]);
 
 // ── Factory ───────────────────────────────────────────────────────────────────
 
@@ -144,11 +164,7 @@ import { toolRegistry } from './ToolRegistry';
 import { getContractFor } from './contracts';
 import type { ToolDefinition as AnthropicToolDef } from '../llm/AnthropicProvider';
 
-export function buildToolsHandle(
-  tenantId: string,
-  ticketId: string,
-  allowedTools?: string[],
-): ToolsHandle {
+export function buildToolsHandle(tenantId: string, ticketId: string, allowedTools?: string[]): ToolsHandle {
   const names = allowedTools ?? toolRegistry.names();
   const entries = names
     .map((name) => {
@@ -197,11 +213,7 @@ export interface ToolManifest {
  * from the handle's actual resolved names — not the raw contract list.
  * This guarantees handle and llmTools are always in sync.
  */
-export function resolveToolsForContext(
-  agentId: string,
-  tenantId: string,
-  ticketId: string,
-): ToolManifest {
+export function resolveToolsForContext(agentId: string, tenantId: string, ticketId: string): ToolManifest {
   const contract = getContractFor(agentId);
   const handle = buildToolsHandle(tenantId, ticketId, contract.allowedTools);
   // Derive LLM schema from handle.toolNames — not contract.allowedTools —

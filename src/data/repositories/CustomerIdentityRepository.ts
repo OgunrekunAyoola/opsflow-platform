@@ -26,7 +26,9 @@ export class CustomerIdentityRepository extends BaseRepository<ICustomerIdentity
   async createIdentity(
     tenantId: string,
     data: Pick<ICustomerIdentity, 'canonicalId' | 'firstSeenAt' | 'lastSeenAt'> & {
-      email?: string; phone?: string; name?: string;
+      email?: string;
+      phone?: string;
+      name?: string;
     },
   ): Promise<ICustomerIdentity> {
     return this.create(tenantId, data as any);
