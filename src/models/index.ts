@@ -1,6 +1,9 @@
 // Model schemas (builders) + document interfaces. The host app registers them on
 // its own mongoose instance via mongoose.model('X', buildXSchema(mongoose)).
 export { buildUserSchema, type IUser } from './User';
+export { buildPermissionSchema, type IPermission } from './Permission';
+export { buildRoleSchema, type IRole } from './Role';
+export { buildRolePermissionSchema, type IRolePermission } from './RolePermission';
 export { buildWorkflowStepSchema, type IWorkflowStep } from './WorkflowStep';
 export { buildCSATSchema, type ICSAT } from './CSAT';
 export { buildClientSchema, type IClient } from './Client';
