@@ -12,7 +12,10 @@
  *  - events: DomainEvent + BullMQEventBus (host injects log/queue/redis)
  *  - llm: computeLlmCostUsd, ModelRouter, Anthropic/Gemini providers, LLMGateway
  *    (host injects providers/eventBus/costTracker/metrics/secrets via deps)
- * (tools SDK follows in a later slice.)
+ *  - tools: ToolDefinition/ToolError/contracts, ToolRegistry (host registers domain
+ *    tools), ToolsHandle (host injects audit via setToolAuditDeps)
+ * The data-plane SDK is complete (P2). Domain capability packages (domain tools,
+ * policies) live in domain repos; the orchestrator/pipelines/agents are later phases.
  */
 
 export { metrics, MetricsService } from './observability/MetricsService';
