@@ -33,3 +33,23 @@ export { ModelRouter } from './llm/ModelRouter';
 export { AnthropicProvider } from './llm/AnthropicProvider';
 export type { ToolDefinition, ToolUseResult, TextWithUsage } from './llm/AnthropicProvider';
 export { GeminiProvider } from './llm/GeminiProvider';
+export {
+  LLMGateway,
+  LLMGatewayError,
+  RateLimitedError,
+  ProviderUnavailableError,
+  ContextWindowExceededError,
+  EmptyResponseError,
+  parseJSONFromLLMText,
+} from './llm/LLMGateway';
+export type {
+  LLMTask,
+  LLMRequest,
+  LLMResponse,
+  LLMUsage,
+  LLMGatewayDeps,
+  MetricsLike,
+  SecretsLike,
+  EventEmitterLike,
+  CostTracker,
+} from './llm/LLMGateway';
