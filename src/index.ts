@@ -6,7 +6,13 @@
  *  - observability: MetricsService (`metrics`, Prometheus) + withNodeMetrics
  *    (tracing is LangSmith, native to LangGraph — ADR-079; no custom tracing)
  *  - secrets: SecretsProvider interface + EnvSecretsProvider + `secrets` singleton
- * (models, repositories, LLM gateway, event bus, PII, tools SDK follow in later slices.)
+ *  - logger / correlation context / encryption (shared utils)
+ *  - models + the repository layer (31 repos, BaseRepository) — host injects models
+ *  - infra: Redis client, PIIMasker, PushService
+ *  - events: DomainEvent + BullMQEventBus (host injects log/queue/redis)
+ *  - llm: computeLlmCostUsd, ModelRouter, Anthropic/Gemini providers, LLMGateway
+ *    (host injects providers/eventBus/costTracker/metrics/secrets via deps)
+ * (tools SDK follows in a later slice.)
  */
 
 export { metrics, MetricsService } from './observability/MetricsService';
