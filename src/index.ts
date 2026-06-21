@@ -28,3 +28,8 @@ export type { DomainEvent, DomainEventName, EventHandler, SubscriberOptions, IEv
 export { BullMQEventBus } from './events/EventBus';
 export type { EventBusDeps, EventLogStore, EventQueue, EventRedis } from './events/EventBus';
 export { computeLlmCostUsd } from './llm/cost';
+export type { LLMProvider, ProviderMasker, CallLogger, ProviderDeps } from './llm/LLMProvider';
+export { ModelRouter } from './llm/ModelRouter';
+export { AnthropicProvider } from './llm/AnthropicProvider';
+export type { ToolDefinition, ToolUseResult, TextWithUsage } from './llm/AnthropicProvider';
+export { GeminiProvider } from './llm/GeminiProvider';
