@@ -23,3 +23,7 @@ export { PIIMasker, piiMasker, PIIMaskingUnavailableError, localFallbackMask } f
 export type { MaskResult } from './pii/PIIMasker';
 export { PushService } from './infra/PushService';
 export type { PushMessage, DeviceTokenLookup } from './infra/PushService';
+export { makeDomainEvent } from './events/DomainEvent';
+export type { DomainEvent, DomainEventName, EventHandler, SubscriberOptions, IEventBus } from './events/DomainEvent';
+export { BullMQEventBus } from './events/EventBus';
+export type { EventBusDeps, EventLogStore, EventQueue, EventRedis } from './events/EventBus';
