@@ -37,7 +37,7 @@ export { computeLlmCostUsd } from './llm/cost';
 export type { LLMProvider, ProviderMasker, CallLogger, ProviderDeps } from './llm/LLMProvider';
 export { ModelRouter } from './llm/ModelRouter';
 export { AnthropicProvider } from './llm/AnthropicProvider';
-export type { ToolDefinition, ToolUseResult, TextWithUsage } from './llm/AnthropicProvider';
+export type { ToolDefinition as AnthropicToolDefinition, ToolUseResult, TextWithUsage } from './llm/AnthropicProvider';
 export { GeminiProvider } from './llm/GeminiProvider';
 export {
   LLMGateway,
@@ -59,3 +59,13 @@ export type {
   EventEmitterLike,
   CostTracker,
 } from './llm/LLMGateway';
+// tools SDK (ADR-T1/T3/T5) — the framework; domain tools live in domain repos
+export type { ToolDefinition } from './tools/ToolDefinition';
+export { ToolExecutionError, wrapToolError } from './tools/ToolError';
+export type { ToolErrorCode, ToolErrorDetail, ToolOutput } from './tools/ToolError';
+export { AGENT_CONTRACTS, getContractFor, validateContractsAgainstRegistry } from './tools/contracts';
+export type { AgentContract } from './tools/contracts';
+export { toolRegistry } from './tools/ToolRegistry';
+export type { ToolContext } from './tools/ToolRegistry';
+export { ToolsHandle, buildToolsHandle, resolveToolsForContext, setToolAuditDeps } from './tools/ToolsHandle';
+export type { ToolManifest, TenantToolContext, ToolAuditWriter, DuplicateChecker } from './tools/ToolsHandle';
