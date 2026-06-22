@@ -19,6 +19,9 @@ export interface IWorkflowRun extends Document {
   startedAt: Date;
   finishedAt?: Date;
   errorMessage?: string;
+  /** G3: the immutable config snapshot this run executed with (reproducibility/audit). */
+  configSnapshotId?: Types.ObjectId;
+  configVersion?: number;
   steps: IWorkflowRunStep[];
 }
 
@@ -34,6 +37,8 @@ export function buildWorkflowRunSchema(m: typeof import('mongoose')) {
     startedAt: { type: Date, default: Date.now },
     finishedAt: { type: Date },
     errorMessage: { type: String },
+    configSnapshotId: { type: Schema.Types.ObjectId, ref: 'ConfigSnapshot' },
+    configVersion: { type: Number },
     steps: [
       {
         agentName: { type: String, required: true },

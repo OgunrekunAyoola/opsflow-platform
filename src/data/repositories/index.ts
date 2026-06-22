@@ -7,6 +7,7 @@ export { PermissionRepository } from './PermissionRepository';
 export { RoleRepository } from './RoleRepository';
 export { RolePermissionRepository } from './RolePermissionRepository';
 export { ApprovalRepository, InvalidApprovalTransitionError } from './ApprovalRepository';
+export { ConfigSnapshotRepository } from './ConfigSnapshotRepository';
 export { UserActionRepository } from './UserActionRepository';
 export { ClientRepository } from './ClientRepository';
 export { SLAPolicyRepository } from './SLAPolicyRepository';
