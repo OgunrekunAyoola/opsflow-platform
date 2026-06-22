@@ -4,6 +4,7 @@ export { buildUserSchema, type IUser } from './User';
 export { buildPermissionSchema, type IPermission } from './Permission';
 export { buildRoleSchema, type IRole } from './Role';
 export { buildRolePermissionSchema, type IRolePermission } from './RolePermission';
+export { buildApprovalSchema, type IApproval } from './Approval';
 export { buildWorkflowStepSchema, type IWorkflowStep } from './WorkflowStep';
 export { buildCSATSchema, type ICSAT } from './CSAT';
 export { buildClientSchema, type IClient } from './Client';

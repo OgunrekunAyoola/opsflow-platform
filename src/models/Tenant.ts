@@ -23,6 +23,8 @@ export interface ITenant extends Document {
   autoReplyEnabled?: boolean;
   autoReplyConfidenceThreshold?: number;
   autoReplySafeCategories?: string[];
+  /** HITL G2: when true, a would-be auto-send is held as a pending Approval for human sign-off. */
+  supervisedMode?: boolean;
   lastInboundAt?: Date;
   zendeskSubdomain?: string;
   zendeskClientId?: string;
@@ -66,6 +68,7 @@ export function buildTenantSchema(m: typeof import('mongoose')) {
       autoReplyEnabled: { type: Boolean, default: false },
       autoReplyConfidenceThreshold: { type: Number, default: 0.9 },
       autoReplySafeCategories: { type: [String], default: ['general', 'feature_request'] },
+      supervisedMode: { type: Boolean, default: false },
       lastInboundAt: { type: Date },
       zendeskSubdomain: { type: String },
       zendeskClientId: { type: String },
