@@ -41,7 +41,7 @@ export {
   type IProductVariant,
   type ProductStatus,
 } from './ProductCatalog';
-export { buildOrderSchema, type IOrder } from './Order';
+export { buildOrderSchema, type IOrder, type OrderItem } from './Order';
 export { buildWorkflowRunSchema, type IWorkflowRun, type IWorkflowRunStep } from './WorkflowRun';
 export { buildShadowComparisonSchema, type IShadowComparison, type ShadowMetrics } from './ShadowComparison';
 export {

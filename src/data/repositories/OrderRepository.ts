@@ -1,10 +1,40 @@
 import type { Model } from 'mongoose';
-import type { IOrder } from '../../models/Order';
+import type { IOrder, OrderItem } from '../../models/Order';
 import { BaseRepository } from './BaseRepository';
+
+/** Order id generator — `ORD-<base36 time><4 random>`, unique per tenant via the index. */
+export function generateOrderId(): string {
+  return `ORD-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`.toUpperCase();
+}
 
 export class OrderRepository extends BaseRepository<IOrder> {
   constructor(model: Model<IOrder>) {
     super(model, 'orders', true); // soft-delete enabled
+  }
+
+  /**
+   * Capture a NEW order (CONVERSION_CAPABILITY_DESIGN). Always created `pending` (UNPAID) — this
+   * never confirms payment (ADR-068: only the processor webhook → confirmPaymentByReference does).
+   * Generates a unique orderId; the {tenantId, orderId} unique index is the idempotency backstop.
+   */
+  async createOrder(
+    tenantId: string,
+    data: {
+      customerEmail: string;
+      total: number;
+      items?: OrderItem[];
+      shippingAddress?: string;
+      orderId?: string;
+    },
+  ): Promise<IOrder> {
+    return this.create(tenantId, {
+      orderId: data.orderId ?? generateOrderId(),
+      customerEmail: data.customerEmail,
+      total: data.total,
+      items: data.items ?? [],
+      status: 'pending',
+      ...(data.shippingAddress ? { shippingAddress: data.shippingAddress } : {}),
+    } as Partial<IOrder>);
   }
 
   async findByOrderId(tenantId: string, orderId: string): Promise<IOrder | null> {

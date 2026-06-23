@@ -1,5 +1,13 @@
 import type { Document, Types } from 'mongoose';
 
+/** A captured order line item (CONVERSION_CAPABILITY_DESIGN). Priced from the catalog at capture. */
+export interface OrderItem {
+  sku: string;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+}
+
 export interface IOrder extends Document {
   deletedAt?: Date | null;
   tenantId: Types.ObjectId;
@@ -7,6 +15,8 @@ export interface IOrder extends Document {
   customerEmail: string;
   status: 'pending' | 'shipped' | 'delivered' | 'cancelled' | 'refunded' | 'pending_refund';
   total: number;
+  /** Line items captured at order creation (optional — legacy orders have none). */
+  items?: OrderItem[];
   shippingAddress?: string;
   notes?: { body: string; at: Date }[];
   trackingNumber?: string;
@@ -33,6 +43,17 @@ export function buildOrderSchema(m: typeof import('mongoose')) {
         default: 'pending',
       },
       total: { type: Number, required: true },
+      items: {
+        type: [
+          {
+            sku: { type: String, required: true },
+            name: { type: String, required: true },
+            quantity: { type: Number, required: true },
+            unitPrice: { type: Number, required: true },
+          },
+        ],
+        default: [],
+      },
       shippingAddress: { type: String },
       notes: {
         type: [{ body: { type: String, required: true }, at: { type: Date, default: Date.now } }],
