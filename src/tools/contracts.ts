@@ -25,8 +25,8 @@ export const AGENT_CONTRACTS: AgentContract[] = [
       'update_delivery_address',
       'add_order_note',
       // Conversion (CONVERSION_CAPABILITY_DESIGN) — must mirror @opsflow/contracts
-      // resolutionContract.allowedTools (the AgentLoop's capability guard).
-      'create_order',
+      // resolutionContract.allowedTools (the AgentLoop's capability guard). create_order is
+      // humanOnly for now (HITL, AUTONOMY_AND_HITL_REGISTER 2026-06-23) → excluded like refund_order.
       'payment_link',
     ],
   },
