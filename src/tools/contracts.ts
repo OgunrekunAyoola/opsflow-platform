@@ -27,6 +27,7 @@ export const AGENT_CONTRACTS: AgentContract[] = [
       // Conversion (CONVERSION_CAPABILITY_DESIGN) — must mirror @opsflow/contracts
       // resolutionContract.allowedTools (the AgentLoop's capability guard).
       'create_order',
+      'payment_link',
     ],
   },
   { agent: 'ResponseAgentNode', allowedTools: [] },
