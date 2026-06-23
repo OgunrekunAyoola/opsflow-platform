@@ -24,6 +24,9 @@ export const AGENT_CONTRACTS: AgentContract[] = [
       'check_inventory',
       'update_delivery_address',
       'add_order_note',
+      // Conversion (CONVERSION_CAPABILITY_DESIGN) — must mirror @opsflow/contracts
+      // resolutionContract.allowedTools (the AgentLoop's capability guard).
+      'create_order',
     ],
   },
   { agent: 'ResponseAgentNode', allowedTools: [] },
