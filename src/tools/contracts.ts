@@ -1,35 +1,23 @@
 // ADR-T3: Per-agent tool contracts. Orchestrator validates ToolsHandle against these at startup.
+import { resolutionContract } from '@opsflow/contracts';
 
 export interface AgentContract {
   agent: string;
   allowedTools: string[];
 }
 
+// SINGLE SOURCE OF TRUTH (N-84 fix, 2026-06-23): the agents' capability scope is declared ONCE in
+// @opsflow/contracts (the AgentLoop's guard). The runtime handle scope below DERIVES from it, so the
+// two lists can never drift. Only the non-agent pipeline nodes (RAGNode, EnrichmentAgentNode, the
+// router, EscalationNode) carry their own minimal scope here — they have no @opsflow/contracts
+// AgentContract. refund_order/create_order stay excluded everywhere (humanOnly=true; ADR-068 / HITL).
 export const AGENT_CONTRACTS: AgentContract[] = [
   { agent: 'TriageAgentNode', allowedTools: [] },
   { agent: 'EnrichmentAgentNode', allowedTools: [] },
   { agent: 'RAGNode', allowedTools: ['kb_lookup'] },
   { agent: 'TriageRouterAgent', allowedTools: [] },
-  // refund_order intentionally excluded: humanOnly=true (ADR-068).
-  // Payment refunds require human authorization + payment gateway webhook.
-  {
-    agent: 'ResolutionAgentNode',
-    allowedTools: [
-      'kb_lookup',
-      'escalate_ticket',
-      'check_order_status',
-      'reset_password',
-      'get_customer_orders',
-      'product_lookup',
-      'check_inventory',
-      'update_delivery_address',
-      'add_order_note',
-      // Conversion (CONVERSION_CAPABILITY_DESIGN) — must mirror @opsflow/contracts
-      // resolutionContract.allowedTools (the AgentLoop's capability guard). create_order is
-      // humanOnly for now (HITL, AUTONOMY_AND_HITL_REGISTER 2026-06-23) → excluded like refund_order.
-      'payment_link',
-    ],
-  },
+  // Derived from @opsflow/contracts resolutionContract.allowedTools — the one source of truth.
+  { agent: 'ResolutionAgentNode', allowedTools: [...resolutionContract.allowedTools] },
   { agent: 'ResponseAgentNode', allowedTools: [] },
   { agent: 'QualityAgentNode', allowedTools: [] },
   { agent: 'EscalationNode', allowedTools: ['escalate_ticket'] },
