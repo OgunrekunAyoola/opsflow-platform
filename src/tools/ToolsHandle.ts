@@ -156,6 +156,7 @@ const MUTATING_TOOLS = new Set([
   'escalate_ticket',
   'update_delivery_address',
   'add_order_note',
+  'create_order',
 ]);
 
 // ── Factory ───────────────────────────────────────────────────────────────────

@@ -33,6 +33,14 @@ export class ProductCatalogRepository extends BaseRepository<IProductCatalog> {
       .exec() as Promise<IProductCatalog[]>;
   }
 
+  /** Find the ACTIVE product that contains a variant with this exact SKU (for order capture). */
+  async findBySku(tenantId: string, sku: string): Promise<IProductCatalog | null> {
+    return (this.model as any)
+      .findOne({ tenantId: this.toObjectId(tenantId), status: 'active', 'variants.sku': sku })
+      .lean()
+      .exec() as Promise<IProductCatalog | null>;
+  }
+
   async distinctCategories(tenantId: string): Promise<string[]> {
     const cats = (await (this.model as any).distinct('category', {
       tenantId: this.toObjectId(tenantId),
