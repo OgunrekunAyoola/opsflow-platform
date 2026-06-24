@@ -9,15 +9,11 @@ import { AGENT_CONTRACTS, getContractFor } from '../tools/contracts';
 
 describe('AGENT_CONTRACTS ↔ @opsflow/contracts (single source of truth)', () => {
   it('ResolutionAgentNode runtime scope is exactly the resolution contract scope', () => {
-    expect(getContractFor('ResolutionAgentNode').allowedTools).toEqual([
-      ...resolutionContract.allowedTools,
-    ]);
+    expect(getContractFor('ResolutionAgentNode').allowedTools).toEqual([...resolutionContract.allowedTools]);
   });
 
   it('derives a fresh array (no shared mutable reference to the contract)', () => {
-    expect(getContractFor('ResolutionAgentNode').allowedTools).not.toBe(
-      resolutionContract.allowedTools,
-    );
+    expect(getContractFor('ResolutionAgentNode').allowedTools).not.toBe(resolutionContract.allowedTools);
   });
 
   // SOC #6 / ADR-068: a humanOnly tool may never appear in any agent's scope.
