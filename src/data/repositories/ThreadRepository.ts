@@ -1,5 +1,5 @@
 import type { Model } from 'mongoose';
-import type { IThread, ThreadState, ChannelType } from '../../models/Thread';
+import type { IThread, ThreadState, ChannelType, ActiveJob } from '../../models/Thread';
 import { BaseRepository } from './BaseRepository';
 
 export class ThreadRepository extends BaseRepository<IThread> {
@@ -63,6 +63,20 @@ export class ThreadRepository extends BaseRepository<IThread> {
   async updateSummary(tenantId: string, threadId: string, summary: string): Promise<IThread | null> {
     return this.updateById(tenantId, threadId, {
       $set: { threadSummary: summary, lastActivityAt: new Date() },
+    });
+  }
+
+  /** Persist the conversation's in-flight Job (CONVERSATION_ENGINE_DESIGN §4). */
+  async setActiveJob(tenantId: string, threadId: string, job: ActiveJob): Promise<IThread | null> {
+    return this.updateById(tenantId, threadId, {
+      $set: { activeJob: job, lastActivityAt: new Date() },
+    });
+  }
+
+  /** Clear the in-flight Job (it completed / failed / handed off). */
+  async clearActiveJob(tenantId: string, threadId: string): Promise<IThread | null> {
+    return this.updateById(tenantId, threadId, {
+      $set: { activeJob: null, lastActivityAt: new Date() },
     });
   }
 
