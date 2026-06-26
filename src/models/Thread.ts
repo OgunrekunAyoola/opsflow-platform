@@ -9,6 +9,18 @@ export type ThreadState =
   | 'resolved';
 export type ChannelType = 'email' | 'whatsapp' | 'web_form' | 'integration';
 
+/**
+ * The conversation's in-flight Job (CONVERSATION_ENGINE_DESIGN §4). Stored structurally here at the
+ * persistence boundary; the Job state machine + slot semantics are domain-owned (@opsflow/domain-support).
+ * `state`/`awaiting` let the next turn resume a paused job instead of re-triaging.
+ */
+export interface ActiveJob {
+  type: string;
+  state: string;
+  slots: Record<string, unknown>;
+  awaiting: string | null;
+}
+
 export interface IThread extends Document {
   tenantId: Types.ObjectId;
   customerId: string;
@@ -25,6 +37,7 @@ export interface IThread extends Document {
   pendingVendorTimeoutMs: number;
   threadSummary?: string;
   keyFacts: string[];
+  activeJob?: ActiveJob | null;
   firstContactAt: Date;
   lastCustomerMessageAt: Date;
   lastActivityAt: Date;
@@ -56,6 +69,7 @@ export function buildThreadSchema(m: typeof import('mongoose')) {
       pendingVendorTimeoutMs: { type: Number, default: 30 * 60 * 1000 },
       threadSummary: { type: String, maxlength: 3000 },
       keyFacts: { type: [String], default: [] },
+      activeJob: { type: Schema.Types.Mixed, default: null },
       firstContactAt: { type: Date, required: true },
       lastCustomerMessageAt: { type: Date, required: true },
       lastActivityAt: { type: Date, required: true, index: true },

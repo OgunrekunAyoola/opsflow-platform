@@ -33,7 +33,13 @@ export { buildCustomerIdentitySchema, type ICustomerIdentity } from './CustomerI
 export { buildAgentVersionSchema, type IAgentVersion, type AgentVersionStatus } from './AgentVersion';
 export { buildSyncedObjectSchema, type ISyncedObject } from './SyncedObject';
 export { buildTicketReplySchema, type ITicketReply } from './TicketReply';
-export { buildThreadSchema, type IThread, type ThreadState, type ChannelType } from './Thread';
+export {
+  buildThreadSchema,
+  type IThread,
+  type ThreadState,
+  type ChannelType,
+  type ActiveJob,
+} from './Thread';
 export { buildNotificationSchema, type INotification, type NotificationType } from './Notification';
 export {
   buildProductCatalogSchema,
