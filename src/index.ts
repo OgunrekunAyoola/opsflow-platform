@@ -55,6 +55,8 @@ export type {
   ToolDefinition as AnthropicToolDefinition,
   ToolUseResult,
   TextWithUsage,
+  AnthropicProviderDeps,
+  AnthropicLike,
 } from './llm/AnthropicProvider';
 export { GeminiProvider } from './llm/GeminiProvider';
 export {

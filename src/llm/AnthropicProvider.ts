@@ -18,6 +18,8 @@ export interface AnthropicLike {
 
 export interface AnthropicProviderDeps extends ProviderDeps {
   client?: AnthropicLike;
+  /** Override the model id (e.g. a Bedrock inference profile `us.anthropic.claude-…`). */
+  model?: string;
 }
 
 export interface ToolDefinition {
@@ -63,7 +65,7 @@ export class AnthropicProvider implements LLMProvider {
       throw new Error('ANTHROPIC_API_KEY is not configured');
     }
     this.client = deps.client ?? new Anthropic({ apiKey: key! });
-    this.model = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6';
+    this.model = deps.model ?? (process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6');
     this.piiMasker = deps.piiMasker ?? defaultPiiMasker;
     this.llmCallLog = deps.llmCallLog ?? noopCallLog;
   }
