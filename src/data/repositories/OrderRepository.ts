@@ -1,4 +1,4 @@
-import type { Model } from 'mongoose';
+import type { Model, FilterQuery } from 'mongoose';
 import type { IOrder, OrderItem } from '../../models/Order';
 import { BaseRepository } from './BaseRepository';
 
@@ -21,6 +21,7 @@ export class OrderRepository extends BaseRepository<IOrder> {
     tenantId: string,
     data: {
       customerEmail: string;
+      customerPhone?: string;
       total: number;
       items?: OrderItem[];
       shippingAddress?: string;
@@ -30,6 +31,7 @@ export class OrderRepository extends BaseRepository<IOrder> {
     return this.create(tenantId, {
       orderId: data.orderId ?? generateOrderId(),
       customerEmail: data.customerEmail,
+      ...(data.customerPhone ? { customerPhone: data.customerPhone } : {}),
       total: data.total,
       items: data.items ?? [],
       status: 'pending',
@@ -43,6 +45,22 @@ export class OrderRepository extends BaseRepository<IOrder> {
 
   async findByCustomerEmail(tenantId: string, customerEmail: string): Promise<IOrder[]> {
     return this.find(tenantId, { customerEmail });
+  }
+
+  /**
+   * Find a customer's orders by ANY trusted contact key (email and/or phone). The AI tools take the
+   * customer identity from the conversation context (H2) — a WhatsApp customer is keyed by phone, an
+   * email customer by email. Returns [] when no contact key is supplied (fail-closed).
+   */
+  async findByCustomerContact(
+    tenantId: string,
+    contact: { email?: string; phone?: string },
+  ): Promise<IOrder[]> {
+    const or: Record<string, unknown>[] = [];
+    if (contact.email) or.push({ customerEmail: contact.email });
+    if (contact.phone) or.push({ customerPhone: contact.phone });
+    if (or.length === 0) return [];
+    return this.find(tenantId, { $or: or } as FilterQuery<IOrder>);
   }
 
   async markPendingRefund(tenantId: string, orderId: string, reason: string): Promise<IOrder | null> {

@@ -13,6 +13,8 @@ export interface IOrder extends Document {
   tenantId: Types.ObjectId;
   orderId: string;
   customerEmail: string;
+  /** WhatsApp/voice customers are keyed by phone (no email) — the ownership key for those (H2 / I2). */
+  customerPhone?: string;
   status: 'pending' | 'shipped' | 'delivered' | 'cancelled' | 'refunded' | 'pending_refund';
   total: number;
   /** Line items captured at order creation (optional — legacy orders have none). */
@@ -37,6 +39,7 @@ export function buildOrderSchema(m: typeof import('mongoose')) {
       tenantId: { type: Schema.Types.ObjectId, ref: 'Tenant', required: true, index: true },
       orderId: { type: String, required: true, index: true },
       customerEmail: { type: String, required: true, index: true },
+      customerPhone: { type: String, index: true, sparse: true },
       status: {
         type: String,
         enum: ['pending', 'shipped', 'delivered', 'cancelled', 'refunded', 'pending_refund'],

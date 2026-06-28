@@ -41,6 +41,7 @@ export function setToolAuditDeps(deps: {
 export interface ToolCustomerIdentity {
   readonly customerId?: string;
   readonly customerEmail?: string;
+  readonly customerPhone?: string;
 }
 
 // ADR-T1: frozen context injected per tool — no agent may hold a live credential ref
@@ -50,6 +51,7 @@ export interface TenantToolContext {
   // Trusted conversation identity (H2) — bound here, never accepted from tool args.
   readonly customerId?: string;
   readonly customerEmail?: string;
+  readonly customerPhone?: string;
   readonly credentials: Readonly<Record<string, string>>;
   readonly toolConfig: Readonly<Record<string, unknown>>;
 }
@@ -121,6 +123,7 @@ export class ToolsHandle {
         ticketId: ctx.ticketId,
         customerId: ctx.customerId,
         customerEmail: ctx.customerEmail,
+        customerPhone: ctx.customerPhone,
       });
 
       metrics.observe('tool_duration_ms', Date.now() - startMs, {
@@ -205,6 +208,7 @@ export function buildToolsHandle(
         // Trusted identity (H2) — bound from the authenticated conversation, not tool args.
         customerId: customer?.customerId,
         customerEmail: customer?.customerEmail,
+        customerPhone: customer?.customerPhone,
         credentials: Object.freeze({}),
         toolConfig: Object.freeze({}),
       };

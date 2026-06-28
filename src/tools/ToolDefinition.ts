@@ -24,6 +24,7 @@ export interface ToolDefinition {
       ticketId?: string;
       customerId?: string;
       customerEmail?: string;
+      customerPhone?: string;
     },
   ) => Promise<Record<string, unknown>>;
 }
