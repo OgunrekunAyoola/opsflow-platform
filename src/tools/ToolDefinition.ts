@@ -15,6 +15,15 @@ export interface ToolDefinition {
   humanOnly?: boolean;
   execute: (
     args: Record<string, unknown> | unknown,
-    context: { tenantId: string; userId?: string; ticketId?: string },
+    // `customerId`/`customerEmail` are the TRUSTED conversation identity, bound from the
+    // authenticated ticket by the tool handle — never from model-supplied args (ADR-002 / H2).
+    // Customer-scoped tools verify resource ownership against these and fail-closed when absent.
+    context: {
+      tenantId: string;
+      userId?: string;
+      ticketId?: string;
+      customerId?: string;
+      customerEmail?: string;
+    },
   ) => Promise<Record<string, unknown>>;
 }

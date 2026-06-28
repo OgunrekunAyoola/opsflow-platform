@@ -34,10 +34,22 @@ export function setToolAuditDeps(deps: {
   _checkDuplicate = deps.checkDuplicate;
 }
 
+/**
+ * Trusted customer identity for the conversation, bound from the authenticated ticket — NEVER from
+ * model-supplied args (ADR-002 / H2). Customer-scoped tools verify resource ownership against this.
+ */
+export interface ToolCustomerIdentity {
+  readonly customerId?: string;
+  readonly customerEmail?: string;
+}
+
 // ADR-T1: frozen context injected per tool — no agent may hold a live credential ref
 export interface TenantToolContext {
   readonly tenantId: string;
   readonly ticketId: string;
+  // Trusted conversation identity (H2) — bound here, never accepted from tool args.
+  readonly customerId?: string;
+  readonly customerEmail?: string;
   readonly credentials: Readonly<Record<string, string>>;
   readonly toolConfig: Readonly<Record<string, unknown>>;
 }
@@ -104,7 +116,12 @@ export class ToolsHandle {
     // OpenTelemetry spans here (N-73).
     try {
       const parsed = tool.schema.parse(input);
-      const output = await tool.execute(parsed, { tenantId: ctx.tenantId, ticketId: ctx.ticketId });
+      const output = await tool.execute(parsed, {
+        tenantId: ctx.tenantId,
+        ticketId: ctx.ticketId,
+        customerId: ctx.customerId,
+        customerEmail: ctx.customerEmail,
+      });
 
       metrics.observe('tool_duration_ms', Date.now() - startMs, {
         tool_name: name,
@@ -165,7 +182,12 @@ import { toolRegistry } from './ToolRegistry';
 import { getContractFor } from './contracts';
 import type { ToolDefinition as AnthropicToolDef } from '../llm/AnthropicProvider';
 
-export function buildToolsHandle(tenantId: string, ticketId: string, allowedTools?: string[]): ToolsHandle {
+export function buildToolsHandle(
+  tenantId: string,
+  ticketId: string,
+  allowedTools?: string[],
+  customer?: ToolCustomerIdentity,
+): ToolsHandle {
   const names = allowedTools ?? toolRegistry.names();
   const entries = names
     .map((name) => {
@@ -180,6 +202,9 @@ export function buildToolsHandle(tenantId: string, ticketId: string, allowedTool
       const ctx: TenantToolContext = {
         tenantId,
         ticketId,
+        // Trusted identity (H2) — bound from the authenticated conversation, not tool args.
+        customerId: customer?.customerId,
+        customerEmail: customer?.customerEmail,
         credentials: Object.freeze({}),
         toolConfig: Object.freeze({}),
       };
@@ -214,9 +239,14 @@ export interface ToolManifest {
  * from the handle's actual resolved names — not the raw contract list.
  * This guarantees handle and llmTools are always in sync.
  */
-export function resolveToolsForContext(agentId: string, tenantId: string, ticketId: string): ToolManifest {
+export function resolveToolsForContext(
+  agentId: string,
+  tenantId: string,
+  ticketId: string,
+  customer?: ToolCustomerIdentity,
+): ToolManifest {
   const contract = getContractFor(agentId);
-  const handle = buildToolsHandle(tenantId, ticketId, contract.allowedTools);
+  const handle = buildToolsHandle(tenantId, ticketId, contract.allowedTools, customer);
   // Derive LLM schema from handle.toolNames — not contract.allowedTools —
   // so humanOnly filtering in buildToolsHandle is reflected in both.
   const llmTools = toolRegistry.toAnthropicTools(handle.toolNames);

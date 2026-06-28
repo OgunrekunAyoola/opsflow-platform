@@ -88,4 +88,10 @@ export type { AgentContract } from './tools/contracts';
 export { toolRegistry } from './tools/ToolRegistry';
 export type { ToolContext } from './tools/ToolRegistry';
 export { ToolsHandle, buildToolsHandle, resolveToolsForContext, setToolAuditDeps } from './tools/ToolsHandle';
-export type { ToolManifest, TenantToolContext, ToolAuditWriter, DuplicateChecker } from './tools/ToolsHandle';
+export type {
+  ToolManifest,
+  TenantToolContext,
+  ToolCustomerIdentity,
+  ToolAuditWriter,
+  DuplicateChecker,
+} from './tools/ToolsHandle';
