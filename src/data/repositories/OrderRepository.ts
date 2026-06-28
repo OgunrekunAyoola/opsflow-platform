@@ -87,20 +87,6 @@ export class OrderRepository extends BaseRepository<IOrder> {
       .lean() as Promise<IOrder | null>;
   }
 
-  async confirmPaymentByReference(
-    tenantId: string,
-    reference: string,
-    gateway: 'paystack' | 'flutterwave',
-  ): Promise<IOrder | null> {
-    return (this.model as any)
-      .findOneAndUpdate(
-        { tenantId: this.toObjectId(tenantId), orderId: reference, deletedAt: null },
-        { $set: { paidAt: new Date(), paymentReference: reference, paymentGateway: gateway } },
-        { new: true },
-      )
-      .lean() as Promise<IOrder | null>;
-  }
-
   async updateShippingAddress(tenantId: string, orderId: string, address: string): Promise<IOrder | null> {
     return (this.model as any)
       .findOneAndUpdate(

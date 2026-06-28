@@ -64,8 +64,6 @@ export interface ITenant extends Document {
   escalationRequiredList?: string[];
   prohibitedTopics?: string[];
   tier: Tier;
-  paystackWebhookSecret?: string;
-  flutterwaveWebhookSecret?: string;
   ticketCap?: number;
   overageRateUsd?: number;
   billingCycleStartDay?: number;
@@ -126,8 +124,6 @@ export function buildTenantSchema(m: typeof import('mongoose')) {
       billingCycleStartDay: { type: Number, default: 1 },
       ticketsUsedThisCycle: { type: Number, default: 0 },
       dailyLlmBudgetUsd: { type: Number },
-      paystackWebhookSecret: { type: String },
-      flutterwaveWebhookSecret: { type: String },
       whatsapp: {
         phoneNumberId: { type: String },
         accessToken: { type: String },
