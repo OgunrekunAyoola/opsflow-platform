@@ -10,6 +10,26 @@ export interface IWhatsAppConfig {
   verifiedAt?: Date;
 }
 
+export interface IDeliveryZone {
+  name: string;
+  feeNaira?: number;
+  etaText?: string;
+}
+
+/**
+ * The deterministic "fact substrate" the driver reads for exact-answer questions (hours, delivery,
+ * returns, payment) — distinct from semantic RAG (CONVERSATION_DRIVER_ARCHITECTURE §1, slice 3).
+ * The scope half (industry / salesCategories / businessDescription) already lives on the tenant; this
+ * is the fact half. All optional — a cold tenant has none, which the readiness gate (C1) checks.
+ */
+export interface IBusinessProfile {
+  hours?: string;
+  locations?: string[];
+  deliveryZones?: IDeliveryZone[];
+  returnPolicy?: string;
+  paymentMethods?: string[];
+}
+
 export interface ITenant extends Document {
   deletedAt?: Date | null;
   name: string;
@@ -37,6 +57,7 @@ export interface ITenant extends Document {
   industry?: string;
   salesCategories?: string[];
   businessDescription?: string;
+  businessProfile?: IBusinessProfile;
   teamSize?: string;
   brandTone?: 'professional' | 'friendly' | 'concise';
   escalationThreshold?: number;
@@ -82,6 +103,18 @@ export function buildTenantSchema(m: typeof import('mongoose')) {
       industry: { type: String },
       salesCategories: { type: [String], default: [] },
       businessDescription: { type: String },
+      businessProfile: {
+        hours: { type: String },
+        locations: { type: [String], default: [] },
+        deliveryZones: {
+          type: [
+            { name: { type: String, required: true }, feeNaira: { type: Number }, etaText: { type: String } },
+          ],
+          default: [],
+        },
+        returnPolicy: { type: String },
+        paymentMethods: { type: [String], default: [] },
+      },
       teamSize: { type: String },
       brandTone: { type: String, enum: ['professional', 'friendly', 'concise'], default: 'professional' },
       escalationThreshold: { type: Number, default: 70 },

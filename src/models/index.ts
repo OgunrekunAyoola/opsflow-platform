@@ -69,5 +69,11 @@ export {
 } from './ConfigChangeLog';
 export { buildAuditLogSchema, type IAuditLog, type AuditActor } from './AuditLog';
 export { buildIntegrationConnectionSchema, type IIntegrationConnection } from './IntegrationConnection';
-export { buildTenantSchema, type ITenant, type IWhatsAppConfig } from './Tenant';
+export {
+  buildTenantSchema,
+  type ITenant,
+  type IWhatsAppConfig,
+  type IBusinessProfile,
+  type IDeliveryZone,
+} from './Tenant';
 export { buildTicketSchema, type ITicket } from './Ticket';
