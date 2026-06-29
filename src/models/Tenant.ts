@@ -28,6 +28,13 @@ export interface IBusinessProfile {
   deliveryZones?: IDeliveryZone[];
   returnPolicy?: string;
   paymentMethods?: string[];
+  /**
+   * Vendor-authored trust/quality/condition statements (e.g. "All phones are brand new and sealed
+   * unless stated", "1-year warranty on laptops"). The bot may RENDER these for authenticity/quality
+   * questions; with no covering assurance it must ESCALATE, never free-author "it's genuine"
+   * (CONSEQUENCE_TIERED_AUTHORING.md — high-consequence trust claims are render-or-escalate).
+   */
+  assurances?: string[];
 }
 
 export interface ITenant extends Document {
@@ -119,6 +126,7 @@ export function buildTenantSchema(m: typeof import('mongoose')) {
         },
         returnPolicy: { type: String },
         paymentMethods: { type: [String], default: [] },
+        assurances: { type: [String], default: [] },
       },
       teamSize: { type: String },
       brandTone: { type: String, enum: ['professional', 'friendly', 'concise'], default: 'professional' },
