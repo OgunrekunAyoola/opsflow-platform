@@ -145,11 +145,20 @@ export class AnthropicProvider implements LLMProvider {
     const maskedMessages = await this._maskMessages(messages);
     const startedAt = Date.now();
 
+    // Prompt caching (default on; LLM_PROMPT_CACHE=0 disables). The tools + system prompt (persona +
+    // BusinessProfile facts) are byte-identical every turn of a conversation, so an ephemeral
+    // cache_control breakpoint on the system block caches the whole stable prefix (Anthropic caches in
+    // tools→system→messages order, up to the breakpoint) — cutting input cost ~0.1x on cache hits.
+    const cacheEnabled = process.env.LLM_PROMPT_CACHE !== '0';
+    const systemField: Anthropic.MessageCreateParams['system'] = cacheEnabled
+      ? [{ type: 'text', text: maskedSystem, cache_control: { type: 'ephemeral' } }]
+      : maskedSystem;
+
     try {
       const response = await this.client.messages.create({
         model: this.model,
         max_tokens: 4096,
-        system: maskedSystem,
+        system: systemField,
         tools: tools as Anthropic.Tool[],
         messages: maskedMessages,
       });
@@ -158,6 +167,25 @@ export class AnthropicProvider implements LLMProvider {
       const toolCalls = response.content
         .filter((b): b is Anthropic.ToolUseBlock => b.type === 'tool_use')
         .map((b) => ({ id: b.id, name: b.name, input: b.input as Record<string, unknown> }));
+
+      // Surface cache effectiveness (creation = first/write, read = hit). Makes the saving visible in
+      // logs + lets a later pass price cache reads/writes precisely in the cost ledger.
+      const usage = response.usage as Anthropic.Usage & {
+        cache_creation_input_tokens?: number;
+        cache_read_input_tokens?: number;
+      };
+      if (cacheEnabled && (usage.cache_creation_input_tokens || usage.cache_read_input_tokens)) {
+        logger.info(
+          {
+            event: 'llm_prompt_cache',
+            task,
+            cacheCreationTokens: usage.cache_creation_input_tokens ?? 0,
+            cacheReadTokens: usage.cache_read_input_tokens ?? 0,
+            uncachedInputTokens: response.usage.input_tokens,
+          },
+          '[AnthropicProvider] prompt cache active',
+        );
+      }
 
       await this._log(task, true, Date.now() - startedAt, response.usage, meta);
       return {
