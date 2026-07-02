@@ -44,6 +44,19 @@ export interface ITicket extends Document {
     risk?: 'low' | 'medium' | 'high';
     explanation?: string;
   };
+  /**
+   * What the conversation driver actually DID this turn (the chatbot's own output, not the retired
+   * rails engine's inferred aiAnalysis). This is the honest, vendor-facing transparency record — the
+   * decision it took, why, whether it answered from grounded facts, and the sources it drew on. The
+   * dashboard aggregates from this; the ticket detail renders it. See CONVERSATION_DRIVER_ARCHITECTURE.
+   */
+  conversationOutcome?: {
+    decision: 'send' | 'clarify' | 'escalate' | 'human_review';
+    reason?: string;
+    grounded?: boolean;
+    sources?: string[];
+    handledAt?: Date;
+  };
   isAiTriaged: boolean;
   isDistressed?: boolean;
   slaPolicy?: Types.ObjectId;
@@ -98,6 +111,13 @@ export function buildTicketSchema(m: typeof import('mongoose')) {
         completeness: { type: String, enum: ['high', 'medium', 'low'] },
         risk: { type: String, enum: ['low', 'medium', 'high'] },
         explanation: { type: String },
+      },
+      conversationOutcome: {
+        decision: { type: String, enum: ['send', 'clarify', 'escalate', 'human_review'] },
+        reason: { type: String },
+        grounded: { type: Boolean },
+        sources: [{ type: String }],
+        handledAt: { type: Date },
       },
       isAiTriaged: { type: Boolean, default: false },
       isDistressed: { type: Boolean, default: false },

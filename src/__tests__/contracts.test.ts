@@ -24,8 +24,13 @@ describe('AGENT_CONTRACTS ↔ @opsflow/contracts (single source of truth)', () =
     }
   });
 
-  it('payment_link stays in the resolution scope (generates a link, never confirms payment)', () => {
-    expect(getContractFor('ResolutionAgentNode').allowedTools).toContain('payment_link');
+  // Communication-only scope (money cleanup): OpsFlow has NO money capability — payment_link and every
+  // other money/order tool were removed. The assistant defers money to the vendor, it never transacts.
+  it('no money/order tool is in the resolution scope (payment_link removed — communication-only)', () => {
+    const scope = getContractFor('ResolutionAgentNode').allowedTools;
+    for (const money of ['payment_link', 'create_order', 'refund_order', 'check_order_status']) {
+      expect(scope).not.toContain(money);
+    }
   });
 
   it('unknown agent yields an empty scope (deny by default)', () => {
