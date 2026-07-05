@@ -44,7 +44,11 @@ export interface ToolCustomerIdentity {
   readonly customerPhone?: string;
 }
 
-// ADR-T1: frozen context injected per tool — no agent may hold a live credential ref
+// ADR-T1: the per-tool context is frozen and carries ONLY what execute needs — the tenant/ticket scope
+// and the trusted conversation identity (H2). N-19: the never-injected `credentials` / `toolConfig`
+// fields were removed — they were always `Object.freeze({})` and never reached `execute`, so the
+// "no agent holds a live credential ref" guarantee was vacuous. A tool needing a secret reads it via
+// the host at execution, never from a context ref.
 export interface TenantToolContext {
   readonly tenantId: string;
   readonly ticketId: string;
@@ -52,8 +56,6 @@ export interface TenantToolContext {
   readonly customerId?: string;
   readonly customerEmail?: string;
   readonly customerPhone?: string;
-  readonly credentials: Readonly<Record<string, string>>;
-  readonly toolConfig: Readonly<Record<string, unknown>>;
 }
 
 interface ToolEntry {
@@ -209,8 +211,6 @@ export function buildToolsHandle(
         customerId: customer?.customerId,
         customerEmail: customer?.customerEmail,
         customerPhone: customer?.customerPhone,
-        credentials: Object.freeze({}),
-        toolConfig: Object.freeze({}),
       };
       return { tool, ctx };
     })
