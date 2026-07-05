@@ -39,6 +39,8 @@ export type MetricName =
   | 'escalation_queue_depth'
   | 'sla_breach_total'
   | 'invariant_violation_total'
+  // Operational visibility (D-Y1) — a class-2 "must-be-visible" event was swallowed; labelled by site.
+  | 'swallowed_error_total'
   // Operational safety (ADR-081/082/083 — Block 8)
   | 'ai_halt_total'
   | 'circuit_breaker_tripped_total'
@@ -73,6 +75,7 @@ type CounterName = Extract<
   | 'ticket_processed_total'
   | 'sla_breach_total'
   | 'invariant_violation_total'
+  | 'swallowed_error_total'
   | 'ai_halt_total'
   | 'circuit_breaker_tripped_total'
   | 'concurrency_requeued_total'
@@ -156,6 +159,10 @@ const COUNTER_CONFIGS: Record<CounterName, { help: string; labelNames: string[] 
   invariant_violation_total: {
     help: 'Post-run invariant violations (§7 — a deterministic compliance gate was bypassed)',
     labelNames: ['tenant_id', 'invariant'],
+  },
+  swallowed_error_total: {
+    help: 'A class-2 "must-be-visible" event fired (D-Y1) — count by site so it can be alerted on',
+    labelNames: ['site'],
   },
   ai_halt_total: {
     help: 'AI kill-switch transitions (ADR-081). action=halt|resume, source=manual|circuit_breaker, scope=global|tenant',
