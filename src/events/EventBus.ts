@@ -1,5 +1,6 @@
 import type { DomainEvent, DomainEventName, EventHandler, IEventBus, SubscriberOptions } from './DomainEvent';
 import logger from '../shared/utils/logger';
+import { metrics } from '../observability/MetricsService';
 
 // ── Host collaborators (injected) ─────────────────────────────────────────────
 // The bus persists to the host's DomainEventLog model, enqueues onto the host's
@@ -74,9 +75,19 @@ export class BullMQEventBus implements IEventBus {
         backoff: { type: 'exponential', delay: 2000 },
       });
     } catch (err: any) {
-      logger.warn(
-        { event: 'event_enqueue_failed', eventName: event.eventName, err: err.message },
-        'DomainEvent enqueue failed',
+      // N-38: the event IS durably persisted in the event log above, but the async dispatch failed and
+      // nothing re-reads the log to redrive it — so a transient queue blip silently drops it from every
+      // subscriber (incl. the cost ledger). Make it MUST-BE-VISIBLE (class-2): count it so it can be
+      // alerted on + log ERROR. The durable row (with enqueuedAt) is what a manual/sweeper redrive reads.
+      metrics.increment('swallowed_error_total', { site: 'event_enqueue' });
+      logger.error(
+        {
+          event: 'event_enqueue_failed',
+          eventName: event.eventName,
+          eventId: event.eventId,
+          err: err.message,
+        },
+        'DomainEvent enqueue failed — event is durable in the log; dispatch dropped (needs redrive)',
       );
     }
 
