@@ -3,6 +3,7 @@ import type Anthropic from '@anthropic-ai/sdk';
 import type { ToolDefinition } from './AnthropicProvider';
 import { AnthropicProvider } from './AnthropicProvider';
 import { GeminiProvider } from './GeminiProvider';
+import { routeForTask } from './routing';
 import { PIIMaskingUnavailableError } from '../pii/PIIMasker';
 import { metrics as defaultMetrics } from '../observability/MetricsService';
 import { getRedisClient } from '../infra/redis';
@@ -183,15 +184,8 @@ export class EmptyResponseError extends Error {
 /** Tasks whose responses are deterministic enough to be safely dedup-cached. */
 const CACHEABLE_TASKS = new Set<LLMTask>(['classification', 'summary']);
 
-/** ADR-027 provider routing table. */
-const TASK_PROVIDER: Record<LLMTask, 'anthropic' | 'gemini'> = {
-  classification: 'gemini',
-  self_eval: 'gemini',
-  summary: 'gemini',
-  answer_generation: 'anthropic',
-  memory_extraction: 'anthropic',
-  tool_use: 'anthropic',
-};
+// ADR-027 provider/model routing lives in ONE table since S-07: `routing.ts` (routeForTask).
+// The gateway and ModelRouter both delegate there — they can no longer disagree about a task.
 
 /**
  * When failing over from Anthropic to Gemini, remap tasks that Gemini's
@@ -322,7 +316,7 @@ export class LLMGateway {
     // Step 5: per-agent rate limit
     await this._checkRateLimit(req.tenantId, req.agentId);
 
-    let primaryProvider = TASK_PROVIDER[req.task] ?? 'gemini';
+    let primaryProvider = routeForTask(req.task).provider;
 
     // Measurement/offline mode: LLM_FORCE_PROVIDER=gemini routes Anthropic-native
     // tasks straight to Gemini (same task remap as failover) without burning two
@@ -521,10 +515,8 @@ export class LLMGateway {
    * (safe — we prefer a false reject over a silent truncation).
    */
   private _validateContextWindow(req: LLMRequest): void {
-    const model =
-      TASK_PROVIDER[req.task] === 'anthropic'
-        ? (process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-6')
-        : (process.env.MODEL_CLASSIFICATION ?? 'gemini-2.5-flash');
+    const route = routeForTask(req.task);
+    const model = route.model[route.provider];
 
     const limit = CONTEXT_WINDOW_TOKENS[model];
     if (!limit) return; // unknown model — skip check rather than false-reject

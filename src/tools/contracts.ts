@@ -18,6 +18,9 @@ export const AGENT_CONTRACTS: AgentContract[] = [
   { agent: 'TriageRouterAgent', allowedTools: [] },
   // Derived from @opsflow/contracts resolutionContract.allowedTools — the one source of truth.
   { agent: 'ResolutionAgentNode', allowedTools: [...resolutionContract.allowedTools] },
+  // S-07: the chatbot driver's OWN identity (it borrowed ResolutionAgentNode's until 2026-07-07).
+  // Same capability scope, same single source of truth — but metrics/rate-limits/audits now name it.
+  { agent: 'ConversationDriver', allowedTools: [...resolutionContract.allowedTools] },
   { agent: 'ResponseAgentNode', allowedTools: [] },
   { agent: 'QualityAgentNode', allowedTools: [] },
   { agent: 'EscalationNode', allowedTools: ['escalate_ticket'] },

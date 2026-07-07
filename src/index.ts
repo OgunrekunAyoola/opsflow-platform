@@ -50,6 +50,8 @@ export type { EventBusDeps, EventLogStore, EventQueue, EventRedis } from './even
 export { computeLlmCostUsd } from './llm/cost';
 export type { LLMProvider, ProviderMasker, CallLogger, ProviderDeps } from './llm/LLMProvider';
 export { ModelRouter } from './llm/ModelRouter';
+export { routeForTask } from './llm/routing';
+export type { TaskRoute, LLMProviderName } from './llm/routing';
 export { AnthropicProvider } from './llm/AnthropicProvider';
 export type {
   ToolDefinition as AnthropicToolDefinition,
