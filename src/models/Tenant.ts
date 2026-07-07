@@ -61,6 +61,8 @@ export interface ITenant extends Document {
   aiDraftEnabled?: boolean;
   aiUsePastTickets?: boolean;
   onboarded?: boolean;
+  /** DomainPack id this tenant runs on (2a); absent ⇒ the default pack ('vendor_support'). */
+  domain?: string;
   industry?: string;
   salesCategories?: string[];
   businessDescription?: string;
@@ -105,6 +107,7 @@ export function buildTenantSchema(m: typeof import('mongoose')) {
       aiUsePastTickets: { type: Boolean, default: true },
       ingestApiKey: { type: String, unique: true, sparse: true },
       onboarded: { type: Boolean, default: false },
+      domain: { type: String },
       industry: { type: String },
       salesCategories: { type: [String], default: [] },
       businessDescription: { type: String },
