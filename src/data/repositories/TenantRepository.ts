@@ -78,6 +78,17 @@ export class TenantRepository extends BaseRepository<ITenant> {
     >;
   }
 
+  /** Bootstrap: create a tenant (signup flow — the one create that precedes any tenantId). */
+  async createTenant(data: Record<string, unknown>): Promise<ITenant> {
+    const doc = await (this.model as any).create(data);
+    return doc.toObject() as ITenant;
+  }
+
+  /** Slug uniqueness probe for tenant provisioning. */
+  async slugExists(slug: string): Promise<boolean> {
+    return Boolean(await (this.model as any).exists({ slug }));
+  }
+
   /** Inbound-email webhook auth: resolve the tenant that owns an inbound secret (pre-auth lookup). */
   async findByInboundSecret(secret: string): Promise<ITenant | null> {
     return (this.model as any)

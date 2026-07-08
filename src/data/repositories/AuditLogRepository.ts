@@ -77,6 +77,14 @@ export class AuditLogRepository extends BaseRepository<IAuditLog> {
     }
   }
 
+  /** ADR-T5 idempotency probe: has this tool invocation already been audited? */
+  async hasInvocation(tenantId: string, action: string, invocationId: string): Promise<boolean> {
+    const dup = await (this.model as any)
+      .findOne({ tenantId: this.toObjectId(tenantId), action, 'metadata.invocationId': invocationId })
+      .lean();
+    return Boolean(dup);
+  }
+
   /** Find recent audit events for a ticket. */
   async findForTicket(tenantId: string, ticketId: string, limit = 50): Promise<IAuditLog[]> {
     const start = Date.now();
