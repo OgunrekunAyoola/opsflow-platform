@@ -16,6 +16,20 @@ export class IntegrationConnectionRepository extends BaseRepository<IIntegration
       .exec() as Promise<IIntegrationConnection | null>;
   }
 
+  /** Upsert the tenant's connection for a provider (same findOneAndUpdate the routes used —
+   *  preserves the model's update-hook encryption of accessToken). */
+  async upsertByProvider(
+    tenantId: string,
+    provider: string,
+    patch: Record<string, unknown>,
+  ): Promise<IIntegrationConnection> {
+    return (this.model as any).findOneAndUpdate(
+      { tenantId: this.toObjectId(tenantId), deletedAt: null, provider },
+      patch,
+      { upsert: true, new: true },
+    ) as Promise<IIntegrationConnection>;
+  }
+
   async setSyncStatus(
     tenantId: string,
     connectionId: string,

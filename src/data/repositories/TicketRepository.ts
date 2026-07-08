@@ -62,6 +62,14 @@ export class TicketRepository extends BaseRepository<ITicket> {
       .exec() as Promise<ITicket | null>;
   }
 
+  /** Email-webhook response shape: the ticket with its client (name/domain) populated. */
+  async findWithClient(tenantId: string, ticketId: string): Promise<ITicket | null> {
+    return (this.model as any)
+      .findOne({ _id: this.toObjectId(ticketId), tenantId: this.toObjectId(tenantId), deletedAt: null })
+      .populate('clientId', 'name domain')
+      .lean() as Promise<ITicket | null>;
+  }
+
   async findWithSLAPolicy(tenantId: string, ticketId: string): Promise<ITicket | null> {
     return (this.model as any)
       .findOne({ _id: this.toObjectId(ticketId), tenantId: this.toObjectId(tenantId), deletedAt: null })

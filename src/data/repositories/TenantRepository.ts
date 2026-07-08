@@ -78,6 +78,13 @@ export class TenantRepository extends BaseRepository<ITenant> {
     >;
   }
 
+  /** Inbound-email webhook auth: resolve the tenant that owns an inbound secret (pre-auth lookup). */
+  async findByInboundSecret(secret: string): Promise<ITenant | null> {
+    return (this.model as any)
+      .findOne({ inboundSecret: secret, deletedAt: null })
+      .lean() as Promise<ITenant | null>;
+  }
+
   /** Verified-WhatsApp tenants (the quality-monitor sweep population). */
   async findWhatsAppVerified(): Promise<Array<{ _id: unknown; whatsapp?: Record<string, unknown> }>> {
     return (this.model as any)

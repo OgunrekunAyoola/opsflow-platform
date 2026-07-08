@@ -14,6 +14,20 @@ export class TicketReplyRepository extends BaseRepository<ITicketReply> {
       .lean() as Promise<ITicketReply[]>;
   }
 
+  /** Customer-portal thread: public replies only, oldest first, display fields only. */
+  async findPublicByTicket(tenantId: string, ticketId: string): Promise<ITicketReply[]> {
+    return (this.model as any)
+      .find({
+        tenantId: this.toObjectId(tenantId),
+        ticketId: this.toObjectId(ticketId),
+        isInternalNote: { $ne: true },
+        type: { $ne: 'internal_note' },
+      })
+      .sort({ createdAt: 1 })
+      .select('body createdAt authorType authorName type')
+      .lean() as Promise<ITicketReply[]>;
+  }
+
   async findLastHumanReply(tenantId: string, ticketId: string): Promise<ITicketReply | null> {
     const replies = (await (this.model as any)
       .find({
