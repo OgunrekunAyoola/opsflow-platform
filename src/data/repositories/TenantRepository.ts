@@ -78,6 +78,18 @@ export class TenantRepository extends BaseRepository<ITenant> {
     >;
   }
 
+  /** Verified-WhatsApp tenants (the quality-monitor sweep population). */
+  async findWhatsAppVerified(): Promise<Array<{ _id: unknown; whatsapp?: Record<string, unknown> }>> {
+    return (this.model as any)
+      .find({
+        'whatsapp.isVerified': true,
+        'whatsapp.phoneNumberId': { $exists: true },
+        deletedAt: null,
+      })
+      .select('_id whatsapp')
+      .lean() as Promise<Array<{ _id: unknown; whatsapp?: Record<string, unknown> }>>;
+  }
+
   async incrementTicketsUsed(id: string): Promise<void> {
     await (this.model as any).updateOne(
       { _id: this.toObjectId(id), deletedAt: null },

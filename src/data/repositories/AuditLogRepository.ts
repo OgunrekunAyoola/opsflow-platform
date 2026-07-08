@@ -40,6 +40,43 @@ export class AuditLogRepository extends BaseRepository<IAuditLog> {
     }
   }
 
+  /**
+   * Batch append (A-06): one insertMany for multi-field audit writes (settings/onboarding routes).
+   * `ordered:false` persists as many entries as possible even if one fails.
+   */
+  async appendMany(
+    entries: Array<{
+      tenantId: string;
+      ticketId?: string;
+      actor: AuditActor;
+      actorId?: string;
+      action: string;
+      metadata?: Record<string, unknown>;
+    }>,
+  ): Promise<void> {
+    if (entries.length === 0) return;
+    const start = Date.now();
+    try {
+      await (this.model as any).insertMany(
+        entries.map((e) => ({
+          tenantId: this.toObjectId(e.tenantId),
+          ticketId: e.ticketId ? this.toObjectId(e.ticketId) : undefined,
+          actor: e.actor,
+          actorId: e.actorId,
+          action: e.action,
+          metadata: e.metadata,
+        })),
+        { ordered: false },
+      );
+    } finally {
+      metrics.observe('db_query_duration_ms', Date.now() - start, {
+        collection: 'auditlogs',
+        operation: 'appendMany',
+        tenant_id: entries[0]?.tenantId ?? 'unknown',
+      });
+    }
+  }
+
   /** Find recent audit events for a ticket. */
   async findForTicket(tenantId: string, ticketId: string, limit = 50): Promise<IAuditLog[]> {
     const start = Date.now();
