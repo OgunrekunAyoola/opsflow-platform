@@ -30,6 +30,36 @@ export class EscalationHandoffRepository extends BaseRepository<IEscalationHando
     return this.findOne(tenantId, { handoffId } as any);
   }
 
+  /** Atomic claim (A-06): assigns the agent ONLY if the handoff is still unacknowledged. */
+  async claimByHandoffId(
+    tenantId: string,
+    handoffId: string,
+    agentId: string,
+  ): Promise<IEscalationHandoff | null> {
+    return (this.model as any)
+      .findOneAndUpdate(
+        { tenantId: this.toObjectId(tenantId), handoffId, acknowledged: false },
+        { $set: { assignedAgentId: agentId, acknowledged: true } },
+        { new: true },
+      )
+      .lean() as Promise<IEscalationHandoff | null>;
+  }
+
+  /** Record agent-verified facts, returning the updated handoff (null = not found). */
+  async setVerifiedFacts(
+    tenantId: string,
+    handoffId: string,
+    facts: Record<string, unknown>,
+  ): Promise<IEscalationHandoff | null> {
+    return (this.model as any)
+      .findOneAndUpdate(
+        { tenantId: this.toObjectId(tenantId), handoffId },
+        { $set: { verifiedFacts: facts } },
+        { new: true },
+      )
+      .lean() as Promise<IEscalationHandoff | null>;
+  }
+
   async updateHandback(tenantId: string, handoffId: string): Promise<void> {
     await (this.model as any).updateOne(
       { tenantId: this.toObjectId(tenantId), handoffId },

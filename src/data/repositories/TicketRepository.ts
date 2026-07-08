@@ -80,6 +80,20 @@ export class TicketRepository extends BaseRepository<ITicket> {
   }
 
   /** Cross-tenant sweep for the SLA monitor worker. Deliberately unscoped. */
+  /** Tickets holding an AI draft awaiting human approval (ADR-037 agent-desk list). */
+  async findDraftsAwaitingApproval(tenantId: string, limit = 20): Promise<ITicket[]> {
+    return (this.model as any)
+      .find({
+        tenantId: this.toObjectId(tenantId),
+        status: 'awaiting_reply',
+        'aiDraft.body': { $exists: true, $ne: null },
+      })
+      .select('_id subject customerEmail aiDraft createdAt')
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean() as Promise<ITicket[]>;
+  }
+
   async findSLABreachCandidatesAllTenants(): Promise<ITicket[]> {
     return (this.model as any)
       .find({
