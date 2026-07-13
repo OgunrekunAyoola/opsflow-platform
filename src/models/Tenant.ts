@@ -1,5 +1,5 @@
 import type { Document } from 'mongoose';
-import { TIER_IDS, type Tier } from '@opsflow/contracts';
+import { TIER_IDS, TENANT_STATUSES, type Tier, type TenantStatus } from '@opsflow/contracts';
 
 export interface IWhatsAppConfig {
   phoneNumberId?: string;
@@ -73,6 +73,13 @@ export interface ITenant extends Document {
   escalationRequiredList?: string[];
   prohibitedTopics?: string[];
   tier: Tier;
+  /**
+   * Subscription lifecycle (SAAS_BLUEPRINT SB-4). Stamped from day one, observe-only
+   * until payments exist — no read path may cut the AI off from it (invariant 2).
+   */
+  status?: TenantStatus;
+  trialEndsAt?: Date | null;
+  paidThroughDate?: Date | null;
   ticketCap?: number;
   overageRateUsd?: number;
   billingCycleStartDay?: number;
@@ -130,6 +137,9 @@ export function buildTenantSchema(m: typeof import('mongoose')) {
       escalationRequiredList: { type: [String], default: [] },
       prohibitedTopics: { type: [String], default: [] },
       tier: { type: String, enum: [...TIER_IDS], default: 'starter', index: true },
+      status: { type: String, enum: [...TENANT_STATUSES], default: 'trialing', index: true },
+      trialEndsAt: { type: Date, default: null },
+      paidThroughDate: { type: Date, default: null },
       ticketCap: { type: Number },
       overageRateUsd: { type: Number },
       billingCycleStartDay: { type: Number, default: 1 },
