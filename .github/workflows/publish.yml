@@ -16,11 +16,11 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           path: opsflow-platform
       - name: Checkout @opsflow/contracts (build dependency)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: OgunrekunAyoola/opsflow-contracts
           path: opsflow-contracts
