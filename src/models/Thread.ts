@@ -41,6 +41,15 @@ export interface IThread extends Document {
   firstContactAt: Date;
   lastCustomerMessageAt: Date;
   lastActivityAt: Date;
+  /**
+   * Coexistence (WHATSAPP_COEXISTENCE_PLAN.md D3/D4, DEC-5b): set when a vendor replies to this
+   * customer from their own WhatsApp Business app. While `aiSuppressedUntil > now`, the
+   * ConversationTurnService takeover gate routes every inbound on this thread to the human queue
+   * without running the driver. Refreshed (not just set) on every vendor echo. Independent of
+   * `state` — a new customer message flips `state` back to 'active' (TicketService's normal ingest
+   * transition) well before this window naturally expires.
+   */
+  aiSuppressedUntil?: Date;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -73,6 +82,7 @@ export function buildThreadSchema(m: typeof import('mongoose')) {
       firstContactAt: { type: Date, required: true },
       lastCustomerMessageAt: { type: Date, required: true },
       lastActivityAt: { type: Date, required: true, index: true },
+      aiSuppressedUntil: { type: Date },
     },
     { timestamps: true },
   );

@@ -44,6 +44,13 @@ export class ThreadRepository extends BaseRepository<IThread> {
     return this.find(tenantId, { state });
   }
 
+  /** Coexistence AI stand-down (WHATSAPP_COEXISTENCE_PLAN.md D3/D4): (re)sets the takeover window. */
+  async setAiSuppressedUntil(tenantId: string, threadId: string, until: Date): Promise<IThread | null> {
+    return this.updateById(tenantId, threadId, {
+      $set: { aiSuppressedUntil: until, lastActivityAt: new Date() },
+    });
+  }
+
   async transitionState(
     tenantId: string,
     threadId: string,
