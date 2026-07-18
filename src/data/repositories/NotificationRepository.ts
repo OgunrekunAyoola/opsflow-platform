@@ -5,9 +5,11 @@ import { BaseRepository } from './BaseRepository';
 import type { PushMessage } from '../../infra/PushService';
 
 /** The slice of PushService that NotificationRepository needs — the host injects its
- *  pushService singleton so the repo can mirror in-app notifications to mobile push. */
+ *  pushService singleton so the repo can mirror in-app notifications to mobile push.
+ *  `sendManyToUsers` is the SB-22 batched fan-out (createMany → one chunked delivery). */
 export interface PushNotifier {
   sendToUser(tenantId: string, userId: string, msg: PushMessage): Promise<void>;
+  sendManyToUsers(tenantId: string, recipients: Array<{ userId: string; msg: PushMessage }>): Promise<void>;
 }
 
 export class NotificationRepository extends BaseRepository<INotification> {
@@ -27,13 +29,23 @@ export class NotificationRepository extends BaseRepository<INotification> {
 
   /** fail-open (class 3): the in-app notification is the source of truth; push is a nudge. */
   private fanOutPush(tenantId: string, item: Partial<INotification>): void {
+    const recipient = this.toRecipient(item);
+    if (!recipient) return;
+    void this.push.sendToUser(tenantId, recipient.userId, recipient.msg);
+  }
+
+  /** Map a notification row to a push recipient, or null if it can't be delivered. */
+  private toRecipient(item: Partial<INotification>): { userId: string; msg: PushMessage } | null {
     const userId = (item as any).userId?.toString?.();
-    if (!userId || !item.message) return;
-    void this.push.sendToUser(tenantId, userId, {
-      title: 'OpsFlow',
-      body: item.message,
-      data: { url: (item as any).url, type: (item as any).type },
-    });
+    if (!userId || !item.message) return null;
+    return {
+      userId,
+      msg: {
+        title: 'OpsFlow',
+        body: item.message,
+        data: { url: (item as any).url, type: (item as any).type },
+      },
+    };
   }
 
   /**
@@ -44,7 +56,13 @@ export class NotificationRepository extends BaseRepository<INotification> {
     if (!items.length) return;
     const tid = new mongoose.Types.ObjectId(tenantId);
     await (this.model as any).insertMany(items.map((item) => ({ ...item, tenantId: tid })));
-    items.forEach((item) => this.fanOutPush(tenantId, item as Partial<INotification>));
+    // SB-22: one batched push (chunked ≤100/request) across all recipients instead
+    // of one Expo request per row. The notifier still fires a per-user realtime
+    // nudge inside sendManyToUsers so every recipient's web bell updates instantly.
+    const recipients = items
+      .map((item) => this.toRecipient(item as Partial<INotification>))
+      .filter((r): r is { userId: string; msg: PushMessage } => r !== null);
+    if (recipients.length) void this.push.sendManyToUsers(tenantId, recipients);
   }
 
   /** Fetch recent notifications for a user, newest first. */

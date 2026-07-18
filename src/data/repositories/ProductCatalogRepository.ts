@@ -20,13 +20,28 @@ export class ProductCatalogRepository extends BaseRepository<IProductCatalog> {
   }
 
   async searchActive(tenantId: string, words: string[], limit: number): Promise<IProductCatalog[]> {
-    const escaped = words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    // Plural-tolerant: "wigs" must find name "…wig 22 inch" / tag "wig" (stress-run
+    // finding, 2026-07-17 — a plural query returned found:0 and the driver told the
+    // customer the product doesn't exist). Each word also matches with a trailing
+    // s/es stripped; matching stays substring-based, so the singular also finds plurals.
+    const expanded = [
+      ...new Set(
+        words.flatMap((w) => {
+          const lower = w.toLowerCase();
+          const forms = [lower];
+          if (lower.length > 3 && lower.endsWith('es')) forms.push(lower.slice(0, -2));
+          if (lower.length > 2 && lower.endsWith('s')) forms.push(lower.slice(0, -1));
+          return forms;
+        }),
+      ),
+    ];
+    const escaped = expanded.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
     const regex = new RegExp(escaped.join('|'), 'i');
     return (this.model as any)
       .find({
         tenantId: this.toObjectId(tenantId),
         status: 'active',
-        $or: [{ name: regex }, { description: regex }, { tags: { $in: words } }, { category: regex }],
+        $or: [{ name: regex }, { description: regex }, { tags: { $in: expanded } }, { category: regex }],
       })
       .limit(limit)
       .lean()
